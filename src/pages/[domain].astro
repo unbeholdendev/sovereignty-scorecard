@@ -1,0 +1,87 @@
+---
+import { realAsn } from "../adapters/asn";
+import { realDns } from "../adapters/dns";
+import { realHttp } from "../adapters/http";
+import { cardContent } from "../card";
+import { allowScan, allowSignup, isFresh, rescanAt } from "../limits";
+import type { Repo } from "../scanner/catalogue";
+import { normalise, scanDomain } from "../scanner/scan";
+import github from "../github.json";
+import { getResult, isHidden, saveResult, saveSignup } from "../store";
+
+const domain = normalise(Astro.params.domain!);
+if (!domain) return new Response("Not a domain", { status: 404 });
+if (domain !== Astro.params.domain) return Astro.redirect(`/${domain}`);
+const consent = "Nothing is sent yet. Emails start once monitoring launches, and the first one asks you to confirm. To remove your address, email removal@unbeholden.dev.";
+let signup = "";
+if (Astro.request.method === "POST") {
+  if (!allowSignup(Astro.clientAddress)) return new Response("Too many sign-ups. Try again in a minute.", { status: 429 });
+  const email = String((await Astro.request.formData()).get("email") ?? "").trim();
+  signup = saveSignup(email, domain, consent) === "invalid" ? "That is not a valid email address." : "Saved. Nothing is sent until monitoring launches.";
+}
+const rescan = Astro.url.searchParams.has("rescan");
+let result = getResult(domain);
+if (!result || !isFresh(result.scannedAt) || (rescan && Date.now() >= rescanAt(result.scannedAt))) {
+  if (!allowScan(Astro.clientAddress)) return new Response("Too many scans. Try again in a minute.", { status: 429 });
+  result = await scanDomain(domain, { dns: realDns, http: realHttp, asn: realAsn });
+  saveResult(result);
+}
+if (rescan) return Astro.redirect(`/${domain}`);
+const rescanOpens = rescanAt(result.scannedAt);
+const meta = github as Record<string, Repo>;
+const card = cardContent(result);
+const score = result.score ?? "not enough data";
+const title = `${domain} ownership score: ${score}`;
+const description = [card.line, ...card.top].join(". ");
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    {isHidden(domain) && <meta name="robots" content="noindex" />}
+    <title>{domain} | Unbeholden Check</title>
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(`/${domain}/card.png`, Astro.site).href} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <h1>{domain}</h1>
+    {result.status === "refused" && <p>Refused: this domain points at a private address.</p>}
+    {result.status === "unreachable" && <p>The homepage could not be fetched.</p>}
+    <p>Ownership score: {score}</p>
+    {result.rentedCompanies.length > 0 && <p>{card.line}: {result.rentedCompanies.join(", ")}</p>}
+    <ul>
+      {result.detections.map((d) => (
+        <li>
+          {d.category === "account" ? `Has an account with ${d.name}` : `${d.name} (${d.category}): ${d.kind}`}
+          <ul>{d.evidence.map((e) => <li><code>{e.detail}</code></li>)}</ul>
+          {d.kind === "rented" && d.alternatives.length === 0 && <p>No alternative mapped yet.</p>}
+          {d.alternatives.length > 0 && (
+            <ul>
+              {d.alternatives.map((a) => (
+                <li>
+                  {a.name}{meta[a.repo] && <> ({meta[a.repo].licence}, {meta[a.repo].stars} stars, latest release {meta[a.repo].release ?? "none"})</>}: <a href={a.selfHostUrl}>Self-host</a>
+                  {a.managedUrl && <> · <a href={a.managedUrl}>Managed</a></>}
+                  {a.articles.map((url) => <> · <a href={url}>Unbeholden article</a></>)}
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))}
+    </ul>
+    <p>This scan reads DNS and one plain fetch of the homepage. Tools loaded later by JavaScript may be missing.</p>
+    <form>
+      <button name="rescan" disabled={Date.now() < rescanOpens}>Rescan</button>
+      {Date.now() < rescanOpens && <span>Available at {new Date(rescanOpens).toISOString().slice(11, 16)} UTC</span>}
+    </form>
+    <form method="post">
+      <label>Email me when this score changes <input name="email" type="email" required /></label>
+      <button>Save</button>
+      <p>{consent}</p>
+      {signup && <p>{signup}</p>}
+    </form>
+    <p>Scanned {result.scannedAt}. <a href="/">Check another domain</a></p>
+    <p>To have this page removed, email <a href="mailto:removal@unbeholden.dev">removal@unbeholden.dev</a>.</p>
+  </body>
+</html>

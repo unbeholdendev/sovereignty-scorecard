@@ -1,0 +1,15 @@
+name: LiveChat
+matches: [LiveChat]
+category: chat
+company: Text
+openSource: false
+alternatives:
+  - name: Chatwoot
+    repo: https://github.com/chatwoot/chatwoot
+    licence: MIT
+    selfHostUrl: https://www.chatwoot.com/docs/self-hosted
+    managedUrl: https://www.chatwoot.com/pricing
+  - name: Zammad
+    repo: https://github.com/zammad/zammad
+    selfHostUrl: https://docs.zammad.org/en/latest/install/docker-compose.html
+    managedUrl: https://zammad.com/en/pricing

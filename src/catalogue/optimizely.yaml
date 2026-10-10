@@ -1,0 +1,19 @@
+name: Optimizely
+matches: [Optimizely]
+category: ab-testing
+company: Optimizely
+openSource: false
+alternatives:
+  - name: GrowthBook
+    repo: https://github.com/growthbook/growthbook
+    licence: MIT
+    selfHostUrl: https://docs.growthbook.io/self-host
+    managedUrl: https://www.growthbook.io/pricing
+  - name: Unleash
+    repo: https://github.com/Unleash/unleash
+    selfHostUrl: https://docs.getunleash.io/using-unleash/deploy/getting-started
+    managedUrl: https://www.getunleash.io/pricing
+  - name: Flagsmith
+    repo: https://github.com/Flagsmith/flagsmith
+    selfHostUrl: https://docs.flagsmith.com/deployment
+    managedUrl: https://www.flagsmith.com/pricing

@@ -1,0 +1,17 @@
+name: Firebase
+matches: [Firebase]
+category: hosting
+company: Google
+openSource: false
+alternatives:
+  - name: Supabase
+    repo: https://github.com/supabase/supabase
+    selfHostUrl: https://supabase.com/docs/guides/self-hosting
+    managedUrl: https://supabase.com/pricing
+  - name: Appwrite
+    repo: https://github.com/appwrite/appwrite
+    selfHostUrl: https://appwrite.io/docs/advanced/self-hosting
+    managedUrl: https://appwrite.io/pricing
+  - name: PocketBase
+    repo: https://github.com/pocketbase/pocketbase
+    selfHostUrl: https://pocketbase.io/docs/

@@ -1,0 +1,9 @@
+name: Google Fonts
+matches: [Google Font API]
+category: fonts
+company: Google
+openSource: false
+alternatives:
+  - name: Fontsource
+    repo: https://github.com/fontsource/fontsource
+    selfHostUrl: https://fontsource.org/docs/getting-started/install

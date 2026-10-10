@@ -1,0 +1,15 @@
+name: Postmark
+matches: [postmark]
+category: mail
+company: ActiveCampaign
+openSource: false
+alternatives:
+  - name: Postal
+    repo: https://github.com/postalserver/postal
+    selfHostUrl: https://docs.postalserver.io/getting-started
+  - name: Stalwart
+    repo: https://github.com/stalwartlabs/stalwart
+    licence: AGPL-3.0-only
+    selfHostUrl: https://stalw.art/docs/install/get-started
+    articles:
+      - https://unbeholden.dev/blog/self-hosting-email-with-stalwart

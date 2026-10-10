@@ -1,0 +1,200 @@
+{
+  "https://github.com/altcha-org/altcha": {
+    "licence": "MIT",
+    "stars": 2807,
+    "release": "2026-10-05",
+    "archived": false
+  },
+  "https://github.com/apache/trafficserver": {
+    "licence": "Apache-2.0",
+    "stars": 1993,
+    "release": "2026-08-12",
+    "archived": false
+  },
+  "https://github.com/basecamp/kamal": {
+    "licence": "MIT",
+    "stars": 14638,
+    "release": "2026-06-18",
+    "archived": false
+  },
+  "https://github.com/caddyserver/caddy": {
+    "licence": "Apache-2.0",
+    "stars": 77664,
+    "release": "2026-10-03",
+    "archived": false
+  },
+  "https://github.com/chatwoot/chatwoot": {
+    "licence": "NOASSERTION",
+    "stars": 37678,
+    "release": "2026-09-18",
+    "archived": false
+  },
+  "https://github.com/Chocobozzz/PeerTube": {
+    "licence": "AGPL-3.0",
+    "stars": 15351,
+    "release": "2026-09-28",
+    "archived": false
+  },
+  "https://github.com/coollabsio/coolify": {
+    "licence": "Apache-2.0",
+    "stars": 62804,
+    "release": "2026-10-09",
+    "archived": false
+  },
+  "https://github.com/CZ-NIC/knot": {
+    "licence": "GPL-2.0-or-later",
+    "stars": 324,
+    "release": "2026-09-08",
+    "archived": false
+  },
+  "https://github.com/dokku/dokku": {
+    "licence": "MIT",
+    "stars": 32173,
+    "release": "2026-09-27",
+    "archived": false
+  },
+  "https://github.com/espocrm/espocrm": {
+    "licence": "AGPL-3.0",
+    "stars": 3469,
+    "release": "2026-09-29",
+    "archived": false
+  },
+  "https://github.com/Flagsmith/flagsmith": {
+    "licence": "BSD-3-Clause",
+    "stars": 6590,
+    "release": "2026-10-05",
+    "archived": false
+  },
+  "https://github.com/fontsource/fontsource": {
+    "licence": "MIT",
+    "stars": 6182,
+    "release": "2026-09-23",
+    "archived": false
+  },
+  "https://github.com/growthbook/growthbook": {
+    "licence": "MIT",
+    "stars": 8485,
+    "release": "2026-09-22",
+    "archived": false
+  },
+  "https://github.com/jitsucom/jitsu": {
+    "licence": "MIT",
+    "stars": 5105,
+    "release": "2026-07-09",
+    "archived": false
+  },
+  "https://github.com/mailcow/mailcow-dockerized": {
+    "licence": "GPL-3.0",
+    "stars": 13585,
+    "release": "2026-10-06",
+    "archived": false
+  },
+  "https://github.com/maplibre/maplibre-gl-js": {
+    "licence": "BSD-3-Clause",
+    "stars": 11837,
+    "release": "2026-10-06",
+    "archived": false
+  },
+  "https://github.com/matomo-org/matomo": {
+    "licence": "GPL-3.0",
+    "stars": 21940,
+    "release": "2026-10-04",
+    "archived": false
+  },
+  "https://github.com/mautic/mautic": {
+    "licence": "GPL-3.0-or-later",
+    "stars": 10737,
+    "release": "2026-09-23",
+    "archived": false
+  },
+  "https://github.com/mediacms-io/mediacms": {
+    "licence": "AGPL-3.0",
+    "stars": 5142,
+    "release": "2026-10-07",
+    "archived": false
+  },
+  "https://github.com/mjl-/mox": {
+    "licence": "MIT",
+    "stars": 5894,
+    "release": "2026-08-19",
+    "archived": false
+  },
+  "https://github.com/nginx/nginx": {
+    "licence": "BSD-2-Clause",
+    "stars": 31838,
+    "release": "2026-09-15",
+    "archived": false
+  },
+  "https://github.com/NLnetLabs/nsd": {
+    "licence": "BSD-3-Clause",
+    "stars": 573,
+    "release": "2026-09-02",
+    "archived": false
+  },
+  "https://github.com/plausible/analytics": {
+    "licence": "AGPL-3.0",
+    "stars": 29355,
+    "release": "2026-05-15",
+    "archived": false
+  },
+  "https://github.com/postalserver/postal": {
+    "licence": "MIT",
+    "stars": 16860,
+    "release": "2026-06-03",
+    "archived": false
+  },
+  "https://github.com/PowerDNS/pdns": {
+    "licence": "GPL-2.0",
+    "stars": 4492,
+    "release": "2026-08-12",
+    "archived": false
+  },
+  "https://github.com/stalwartlabs/stalwart": {
+    "licence": "none",
+    "stars": 15015,
+    "release": "2026-10-05",
+    "archived": false
+  },
+  "https://github.com/tiagozip/cap": {
+    "licence": "Apache-2.0",
+    "stars": 7965,
+    "release": "2026-09-23",
+    "archived": false
+  },
+  "https://github.com/TryGhost/Ghost": {
+    "licence": "MIT",
+    "stars": 55507,
+    "release": "2026-10-07",
+    "archived": false
+  },
+  "https://github.com/twentyhq/twenty": {
+    "licence": "AGPL-3.0-only",
+    "stars": 58153,
+    "release": "2026-10-05",
+    "archived": false
+  },
+  "https://github.com/umami-software/umami": {
+    "licence": "MIT",
+    "stars": 39282,
+    "release": "2026-09-17",
+    "archived": false
+  },
+  "https://github.com/Unleash/unleash": {
+    "licence": "AGPL-3.0",
+    "stars": 13866,
+    "release": "2026-09-08",
+    "archived": false
+  },
+  "https://github.com/WordPress/WordPress": {
+    "licence": "GPL-2.0-or-later",
+    "stars": 21464,
+    "release": "2026-10-06",
+    "archived": false
+  },
+  "https://github.com/zammad/zammad": {
+    "licence": "AGPL-3.0",
+    "stars": 5993,
+    "release": "2026-09-23",
+    "archived": false
+  }
+}

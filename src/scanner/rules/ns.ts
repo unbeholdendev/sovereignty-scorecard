@@ -1,0 +1,18 @@
+export const nsRules = [
+  { id: "cloudflare-dns", name: "Cloudflare DNS", company: "Cloudflare", hosts: ["ns.cloudflare.com"] },
+  { id: "route-53", name: "Amazon Route 53", company: "Amazon", hosts: [/\.awsdns-\d+\./] },
+  { id: "google-cloud-dns", name: "Google Cloud DNS", company: "Google", hosts: ["googledomains.com"] },
+  { id: "azure-dns", name: "Azure DNS", company: "Microsoft", hosts: [/\.azure-dns\.(com|net|org|info)$/] },
+  { id: "godaddy-dns", name: "GoDaddy DNS", company: "GoDaddy", hosts: ["domaincontrol.com"] },
+  { id: "namecheap-dns", name: "Namecheap DNS", company: "Namecheap", hosts: ["registrar-servers.com"] },
+  { id: "gandi-dns", name: "Gandi DNS", company: "Gandi", hosts: ["gandi.net"] },
+  { id: "ovh-dns", name: "OVHcloud DNS", company: "OVHcloud", hosts: ["ovh.net", "anycast.me"] },
+  { id: "hetzner-dns", name: "Hetzner DNS", company: "Hetzner", hosts: ["ns.hetzner.com", "ns.hetzner.de", "your-server.de"] },
+  { id: "digitalocean-dns", name: "DigitalOcean DNS", company: "DigitalOcean", hosts: ["digitalocean.com"] },
+  { id: "porkbun-dns", name: "Porkbun DNS", company: "Porkbun", hosts: ["porkbun.com"] },
+  { id: "ionos-dns", name: "IONOS DNS", company: "IONOS", hosts: [/^ns\d+\.ui-dns\./] },
+  { id: "squarespace-dns", name: "Squarespace DNS", company: "Squarespace", hosts: ["squarespacedns.com"] },
+  { id: "vercel-dns", name: "Vercel DNS", company: "Vercel", hosts: ["vercel-dns.com"] },
+  { id: "ns1", name: "NS1", company: "IBM", hosts: ["nsone.net"] },
+  { id: "spaceship-dns", name: "Spaceship DNS", company: "Spaceship", hosts: ["spaceship.net"] },
+];

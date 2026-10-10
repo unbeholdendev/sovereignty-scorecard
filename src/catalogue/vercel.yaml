@@ -1,0 +1,16 @@
+name: Vercel
+matches: [Vercel]
+category: hosting
+company: Vercel
+openSource: false
+alternatives:
+  - name: Coolify
+    repo: https://github.com/coollabsio/coolify
+    selfHostUrl: https://coolify.io/docs/get-started/installation
+    managedUrl: https://app.coolify.io
+  - name: Dokku
+    repo: https://github.com/dokku/dokku
+    selfHostUrl: https://dokku.com/docs/getting-started/installation/
+  - name: Kamal
+    repo: https://github.com/basecamp/kamal
+    selfHostUrl: https://kamal-deploy.org/docs/installation/

@@ -1,0 +1,19 @@
+name: Zoho CRM
+matches: [Zoho]
+category: crm
+company: Zoho
+openSource: false
+alternatives:
+  - name: Twenty
+    repo: https://github.com/twentyhq/twenty
+    licence: AGPL-3.0-only
+    selfHostUrl: https://twenty.com/developers/section/self-hosting
+    managedUrl: https://twenty.com/pricing
+  - name: EspoCRM
+    repo: https://github.com/espocrm/espocrm
+    selfHostUrl: https://docs.espocrm.com/administration/installation/
+    managedUrl: https://www.espocrm.com/pricing/
+  - name: Mautic
+    repo: https://github.com/mautic/mautic
+    licence: GPL-3.0-or-later
+    selfHostUrl: https://docs.mautic.org/en/5.x/getting_started/how_to_install_mautic.html

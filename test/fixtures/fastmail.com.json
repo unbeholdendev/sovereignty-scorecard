@@ -1,0 +1,31 @@
+{
+  "dns": {
+    "A fastmail.com": [
+      "103.168.172.65"
+    ],
+    "AAAA fastmail.com": [],
+    "MX fastmail.com": [
+      "10 in1-smtp.messagingengine.com",
+      "20 in2-smtp.messagingengine.com"
+    ],
+    "A www.fastmail.com": [
+      "172.66.47.91",
+      "172.66.44.165"
+    ]
+  },
+  "http": {
+    "status": 302,
+    "url": "https://fastmail.com/",
+    "headers": {
+      "connection": "keep-alive",
+      "content-length": "138",
+      "content-type": "text/html",
+      "date": "Sat, 10 Oct 2026 08:13:29 GMT",
+      "location": "https://www.fastmail.com/",
+      "server": "nginx",
+      "x-frontend": "phl-frontend-01",
+      "x-trace-id": "ti_0ae6f74dea2079895f3795ad7ddc3719"
+    },
+    "body": "<html>\r\n<head><title>302 Found</title></head>\r\n<body>\r\n<center><h1>302 Found</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n"
+  }
+}

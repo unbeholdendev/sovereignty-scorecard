@@ -1,0 +1,17 @@
+name: Clerk
+matches: [Clerk]
+category: auth
+company: Clerk
+openSource: false
+alternatives:
+  - name: Keycloak
+    repo: https://github.com/keycloak/keycloak
+    selfHostUrl: https://www.keycloak.org/getting-started/getting-started-docker
+  - name: Zitadel
+    repo: https://github.com/zitadel/zitadel
+    selfHostUrl: https://zitadel.com/docs/self-hosting/deploy/overview
+    managedUrl: https://zitadel.com/pricing
+  - name: Ory Kratos
+    repo: https://github.com/ory/kratos
+    selfHostUrl: https://www.ory.sh/docs/kratos/install
+    managedUrl: https://www.ory.sh/pricing

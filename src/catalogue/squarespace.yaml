@@ -1,0 +1,14 @@
+name: Squarespace
+matches: [Squarespace]
+category: hosting
+company: Squarespace
+openSource: false
+alternatives:
+  - name: Ghost
+    repo: https://github.com/TryGhost/Ghost
+    selfHostUrl: https://ghost.org/docs/install/
+    managedUrl: https://ghost.org/pricing/
+  - name: WordPress
+    repo: https://github.com/WordPress/WordPress
+    licence: GPL-2.0-or-later
+    selfHostUrl: https://developer.wordpress.org/advanced-administration/before-install/howto-install/

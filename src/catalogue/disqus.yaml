@@ -1,0 +1,12 @@
+name: Disqus
+matches: [Disqus]
+category: comments
+company: Disqus
+openSource: false
+alternatives:
+  - name: Remark42
+    repo: https://github.com/umputun/remark42
+    selfHostUrl: https://remark42.com/docs/getting-started/installation/
+  - name: Isso
+    repo: https://github.com/isso-comments/isso
+    selfHostUrl: https://isso-comments.de/docs/reference/installation/

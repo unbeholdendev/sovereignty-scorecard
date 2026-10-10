@@ -1,0 +1,15 @@
+name: Bunny CDN
+matches: [Bunny]
+category: cdn
+company: Bunny
+openSource: false
+alternatives:
+  - name: Caddy
+    repo: https://github.com/caddyserver/caddy
+    selfHostUrl: https://caddyserver.com/docs/install
+  - name: nginx
+    repo: https://github.com/nginx/nginx
+    selfHostUrl: https://nginx.org/en/docs/install.html
+  - name: Apache Traffic Server
+    repo: https://github.com/apache/trafficserver
+    selfHostUrl: https://docs.trafficserver.apache.org/en/latest/getting-started/index.en.html

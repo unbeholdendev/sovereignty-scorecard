@@ -1,0 +1,17 @@
+name: Algolia
+matches: [Algolia, Algolia DocSearch]
+category: search
+company: Algolia
+openSource: false
+alternatives:
+  - name: Meilisearch
+    repo: https://github.com/meilisearch/meilisearch
+    selfHostUrl: https://www.meilisearch.com/docs/learn/self_hosted/getting_started_with_self_hosted_meilisearch
+    managedUrl: https://www.meilisearch.com/cloud
+  - name: Typesense
+    repo: https://github.com/typesense/typesense
+    selfHostUrl: https://typesense.org/docs/guide/install-typesense.html
+    managedUrl: https://cloud.typesense.org
+  - name: OpenSearch
+    repo: https://github.com/opensearch-project/OpenSearch
+    selfHostUrl: https://docs.opensearch.org/latest/install-and-configure/

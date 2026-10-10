@@ -1,0 +1,29 @@
+{
+  "name": "sovereignty-scorecard",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "start": "bun ./dist/server/entry.mjs",
+    "capture": "bun scripts/capture.ts",
+    "asn": "bun scripts/asn.ts",
+    "refresh": "bun scripts/refresh.ts",
+    "examples": "bun scripts/examples.ts",
+    "release": "bun run asn && bun run refresh && bun run examples && astro build"
+  },
+  "dependencies": {
+    "@astrojs/node": "^11.1.7",
+    "@resvg/resvg-js": "^2.6.2",
+    "astro": "^7.3.8",
+    "happy-dom": "~20.14.0",
+    "satori": "^0.47.1",
+    "simple-wappalyzer": "^1.1.106",
+    "tldts": "^7.4.18",
+    "wappalyzer-core": "6",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2"
+  }
+}

@@ -1,0 +1,15 @@
+name: Segment
+matches: [Segment]
+category: tag-managers
+company: Twilio
+openSource: false
+alternatives:
+  - name: Jitsu
+    repo: https://github.com/jitsucom/jitsu
+    selfHostUrl: https://docs.jitsu.com/self-hosting/quick-start
+    managedUrl: https://jitsu.com
+  - name: PostHog
+    repo: https://github.com/PostHog/posthog
+    licence: MIT
+    selfHostUrl: https://posthog.com/docs/self-host
+    managedUrl: https://posthog.com/pricing

@@ -1,0 +1,16 @@
+name: Amazon S3
+matches: [Amazon S3]
+category: hosting
+company: Amazon
+openSource: false
+alternatives:
+  - name: SeaweedFS
+    repo: https://github.com/seaweedfs/seaweedfs
+    selfHostUrl: https://github.com/seaweedfs/seaweedfs/wiki/Getting-Started
+  - name: Coolify
+    repo: https://github.com/coollabsio/coolify
+    selfHostUrl: https://coolify.io/docs/get-started/installation
+    managedUrl: https://app.coolify.io
+  - name: Dokku
+    repo: https://github.com/dokku/dokku
+    selfHostUrl: https://dokku.com/docs/getting-started/installation/

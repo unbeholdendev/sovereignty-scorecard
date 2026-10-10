@@ -1,0 +1,17 @@
+name: Azure DNS
+matches: [azure-dns]
+category: dns
+company: Microsoft
+openSource: false
+alternatives:
+  - name: PowerDNS
+    repo: https://github.com/PowerDNS/pdns
+    selfHostUrl: https://doc.powerdns.com/authoritative/installation.html
+  - name: Knot DNS
+    repo: https://github.com/CZ-NIC/knot
+    licence: GPL-2.0-or-later
+    selfHostUrl: https://www.knot-dns.cz/docs/latest/html/installation.html
+  - name: NSD
+    repo: https://github.com/NLnetLabs/nsd
+    licence: BSD-3-Clause
+    selfHostUrl: https://nsd.docs.nlnetlabs.nl/en/latest/installation.html

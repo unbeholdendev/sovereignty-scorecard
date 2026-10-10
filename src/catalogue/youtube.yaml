@@ -1,0 +1,12 @@
+name: YouTube
+matches: [YouTube]
+category: video
+company: Google
+openSource: false
+alternatives:
+  - name: PeerTube
+    repo: https://github.com/Chocobozzz/PeerTube
+    selfHostUrl: https://docs.joinpeertube.org/install/any-os
+  - name: MediaCMS
+    repo: https://github.com/mediacms-io/mediacms
+    selfHostUrl: https://github.com/mediacms-io/mediacms/blob/main/docs/admins_docs.md

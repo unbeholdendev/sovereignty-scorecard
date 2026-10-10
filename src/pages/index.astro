@@ -1,0 +1,25 @@
+---
+import examples from "../examples.json";
+import { normalise } from "../scanner/scan";
+import { recentResults } from "../store";
+
+const input = Astro.url.searchParams.get("domain");
+const domain = input && normalise(input);
+if (domain) return Astro.redirect(`/${domain}`);
+const recent = recentResults();
+---
+<html lang="en">
+  <head><meta charset="utf-8" /><title>Unbeholden Check</title></head>
+  <body>
+    <h1>Unbeholden Check</h1>
+    <form method="get">
+      <input name="domain" placeholder="example.com" required />
+      <button>Check</button>
+    </form>
+    {input && <p>That is not a domain.</p>}
+    <h2>Examples</h2>
+    <ul>{examples.map((r) => <li><a href={`/${r.domain}`}>{r.domain}</a>: {r.score ?? "not enough data"}</li>)}</ul>
+    {recent.length > 0 && <h2>Recently scanned</h2>}
+    <ul>{recent.map((r) => <li><a href={`/${r.domain}`}>{r.domain}</a>: {r.score ?? "not enough data"}</li>)}</ul>
+  </body>
+</html>

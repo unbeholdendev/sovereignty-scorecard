@@ -1,0 +1,17 @@
+name: Apple MapKit JS
+matches: [Apple MapKit JS]
+category: maps
+company: Apple
+openSource: false
+alternatives:
+  - name: MapLibre GL JS
+    repo: https://github.com/maplibre/maplibre-gl-js
+    licence: BSD-3-Clause
+    selfHostUrl: https://maplibre.org/maplibre-gl-js/docs/
+  - name: TileServer GL
+    repo: https://github.com/maptiler/tileserver-gl
+    licence: BSD-2-Clause
+    selfHostUrl: https://tileserver.readthedocs.io/en/latest/installation.html
+  - name: PMTiles
+    repo: https://github.com/protomaps/go-pmtiles
+    selfHostUrl: https://docs.protomaps.com/pmtiles/cli

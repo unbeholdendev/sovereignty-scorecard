@@ -1,0 +1,14 @@
+name: Cloudflare Zaraz
+matches: [Cloudflare Zaraz]
+category: tag-managers
+company: Cloudflare
+openSource: false
+alternatives:
+  - name: Matomo Tag Manager
+    repo: https://github.com/matomo-org/matomo
+    selfHostUrl: https://matomo.org/guide/tag-manager/getting-started-with-tag-manager/
+    managedUrl: https://matomo.org/matomo-cloud/
+  - name: Jitsu
+    repo: https://github.com/jitsucom/jitsu
+    selfHostUrl: https://docs.jitsu.com/self-hosting/quick-start
+    managedUrl: https://jitsu.com

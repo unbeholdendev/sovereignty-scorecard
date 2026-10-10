@@ -1,0 +1,17 @@
+name: Marketo
+matches: [Marketo, marketo]
+category: crm
+company: Adobe
+openSource: false
+alternatives:
+  - name: listmonk
+    repo: https://github.com/knadh/listmonk
+    selfHostUrl: https://listmonk.app/docs/installation/
+  - name: Mautic
+    repo: https://github.com/mautic/mautic
+    licence: GPL-3.0-or-later
+    selfHostUrl: https://docs.mautic.org/en/5.x/getting_started/how_to_install_mautic.html
+  - name: Keila
+    repo: https://github.com/pentacent/keila
+    selfHostUrl: https://www.keila.io/docs/installation
+    managedUrl: https://www.keila.io/pricing
