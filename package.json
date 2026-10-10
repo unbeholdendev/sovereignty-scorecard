@@ -3,7 +3,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
+    "dev": "astro dev --host",
     "build": "astro build",
     "start": "bun ./dist/server/entry.mjs",
     "capture": "bun scripts/capture.ts",
