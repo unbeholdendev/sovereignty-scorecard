@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-11T17:27:59.392Z",
+  "title": "Design System: Unbeholden Check",
+  "extensions": {
+    "colorMeta": {
+      "ground": {
+        "role": "neutral",
+        "displayName": "Paper Ground",
+        "canonical": "#fafaf8",
+        "tonalRamp": [
+          "#0b0b0a",
+          "#252524",
+          "#424240",
+          "#616160",
+          "#828281",
+          "#a5a5a3",
+          "#c9c9c7",
+          "#eeeeec"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#17181b",
+        "tonalRamp": [
+          "#0a0b0e",
+          "#242528",
+          "#414245",
+          "#606165",
+          "#818286",
+          "#a3a5a9",
+          "#c7c9cd",
+          "#edeef3"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Graphite",
+        "canonical": "#5d5e63",
+        "tonalRamp": [
+          "#0a0b0f",
+          "#242529",
+          "#414246",
+          "#606166",
+          "#818287",
+          "#a3a5aa",
+          "#c8c9ce",
+          "#edeef4"
+        ]
+      },
+      "faint": {
+        "role": "neutral",
+        "displayName": "Faint Grey",
+        "canonical": "#b9b9bd",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#252528",
+          "#424245",
+          "#616164",
+          "#828286",
+          "#a4a4a8",
+          "#c9c9cd",
+          "#eeeef2"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "rgba(23, 24, 27, 0.1)"
+      },
+      "field": {
+        "role": "neutral",
+        "displayName": "Field White",
+        "canonical": "#ffffff"
+      },
+      "field-stroke": {
+        "role": "neutral",
+        "displayName": "Field Stroke",
+        "canonical": "rgba(23, 24, 27, 0.22)"
+      },
+      "rented-magenta": {
+        "role": "primary",
+        "displayName": "Rented Magenta",
+        "canonical": "#c2307f",
+        "tonalRamp": [
+          "#290010",
+          "#4b002b",
+          "#6e1f48",
+          "#934068",
+          "#b86289",
+          "#de84ac",
+          "#ffa8d1",
+          "#ffcdf6"
+        ]
+      },
+      "open-cyan": {
+        "role": "secondary",
+        "displayName": "Open Cyan",
+        "canonical": "#0a85a8",
+        "tonalRamp": [
+          "#000e2c",
+          "#002c4b",
+          "#004c6c",
+          "#006d8f",
+          "#208fb2",
+          "#4eb3d7",
+          "#75d8fe",
+          "#9bfeff"
+        ]
+      },
+      "open-cyan-text": {
+        "role": "secondary",
+        "displayName": "Open Cyan Text",
+        "canonical": "#077590",
+        "tonalRamp": [
+          "#000f27",
+          "#002d45",
+          "#004c65",
+          "#006d87",
+          "#328fab",
+          "#5ab3cf",
+          "#7fd7f5",
+          "#a5feff"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The one-sentence headline. Once per page."
+      },
+      "lane-number": {
+        "displayName": "Lane Number",
+        "purpose": "Two-digit lane numbers; muted at rest, ink when open; 22px under 900px."
+      },
+      "score": {
+        "displayName": "Score",
+        "purpose": "The ownership score; suffix '/ 100 owned' at 20px 500 muted."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Service names in lane rows."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Counts line, alternative names (500), form labels (500)."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Company line, toggles, notes, table metadata, Details headings (500, muted)."
+      },
+      "evidence": {
+        "displayName": "Evidence",
+        "purpose": "DNS records, headers and HTML snippets only."
+      }
+    },
+    "shadows": [],
+    "motion": [],
+    "breakpoints": [
+      {
+        "name": "stack",
+        "value": "900px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ink control; joins an input on its right, or stands alone with 4px corners.",
+      "html": "<button class=\"ds-btn\">Check</button> <button class=\"ds-btn\" disabled>Rescan</button>",
+      "css": ":host{--ground:#fafaf8;--ink:#17181b;--muted:#5d5e63;--faint:#b9b9bd;--rule:rgba(23,24,27,.1);--rent:#c2307f;--open:#0a85a8;--open-text:#077590;--sans:\"Archivo\",system-ui,sans-serif;--condensed:\"Barlow Condensed\",\"Archivo\",sans-serif;--mono:\"JetBrains Mono\",ui-monospace,monospace;} .ds-btn{font:500 16px/1 var(--sans);height:36px;padding:0 18px;border:0;border-radius:4px;background:var(--ink);color:var(--ground);cursor:pointer;} .ds-btn:focus-visible{outline:2px solid var(--open);outline-offset:2px;} .ds-btn:disabled{background:var(--faint);cursor:not-allowed;}"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "White input joined to an ink button as one unit.",
+      "html": "<form class=\"ds-check\"><input class=\"ds-input\" value=\"linear.app\" aria-label=\"Domain\"><button class=\"ds-btn\">Check</button></form>",
+      "css": ":host{--ground:#fafaf8;--ink:#17181b;--muted:#5d5e63;--faint:#b9b9bd;--rule:rgba(23,24,27,.1);--rent:#c2307f;--open:#0a85a8;--open-text:#077590;--sans:\"Archivo\",system-ui,sans-serif;--condensed:\"Barlow Condensed\",\"Archivo\",sans-serif;--mono:\"JetBrains Mono\",ui-monospace,monospace;} .ds-check{display:flex;} .ds-input{font:400 16px var(--sans);color:var(--ink);height:36px;width:280px;border:1px solid rgba(23,24,27,.22);border-radius:4px 0 0 4px;background:#fff;padding:0 12px;} .ds-btn{font:500 16px/1 var(--sans);height:36px;padding:0 18px;border:0;border-radius:0 4px 4px 0;background:var(--ink);color:var(--ground);cursor:pointer;} .ds-input:focus-visible,.ds-btn:focus-visible{outline:2px solid var(--open);outline-offset:2px;}"
+    },
+    {
+      "name": "Top Bar",
+      "kind": "nav",
+      "description": "Name, scan time, search; hairline below.",
+      "html": "<header class=\"ds-bar\"><a class=\"ds-name\" href=\"#\">Unbeholden Check</a><span class=\"ds-when\">Scanned Oct 11, 2026, 17:20 UTC</span></header>",
+      "css": ":host{--ground:#fafaf8;--ink:#17181b;--muted:#5d5e63;--faint:#b9b9bd;--rule:rgba(23,24,27,.1);--rent:#c2307f;--open:#0a85a8;--open-text:#077590;--sans:\"Archivo\",system-ui,sans-serif;--condensed:\"Barlow Condensed\",\"Archivo\",sans-serif;--mono:\"JetBrains Mono\",ui-monospace,monospace;} .ds-bar{display:flex;align-items:center;gap:24px;min-height:52px;padding:8px 24px;border-bottom:1px solid var(--rule);background:var(--ground);color:var(--ink);font:400 16px/1.45 var(--sans);} .ds-name{font-weight:600;color:inherit;text-decoration:none;} .ds-name:hover{text-decoration:underline;text-underline-offset:3px;} .ds-when{font-size:14px;color:var(--muted);}"
+    },
+    {
+      "name": "Lane Row",
+      "kind": "custom",
+      "refersTo": "lane-row",
+      "description": "One line per service: number, name, company, link glyph, alternatives, toggle.",
+      "html": "<div class=\"ds-lane\"><span class=\"ds-no\">01</span><span class=\"ds-svc\">Amazon SES</span><span class=\"ds-who\">rented from <b>Amazon</b></span><svg width=\"90\" height=\"20\" viewBox=\"0 0 90 20\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"10\" r=\"3.2\" fill=\"#c2307f\"/><path d=\"M8 10H36M36 4v12M50 4v12\" stroke=\"#c2307f\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M54 10H80\" stroke=\"#0a85a8\" stroke-width=\"2\" stroke-linecap=\"round\"/><circle cx=\"84.5\" cy=\"10\" r=\"3.6\" fill=\"none\" stroke=\"#0a85a8\" stroke-width=\"1.6\"/></svg><span class=\"ds-alt\">Postal, Stalwart</span><span class=\"ds-toggle\">Details</span></div><div class=\"ds-lane\"><span class=\"ds-no\">07</span><span class=\"ds-svc\">Google Cloud CDN</span><span class=\"ds-who\">rented, company not listed</span><svg width=\"90\" height=\"20\" viewBox=\"0 0 90 20\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"10\" r=\"3.2\" fill=\"#c2307f\"/><path d=\"M8 10H36M36 4v12M50 4v12\" stroke=\"#c2307f\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M54 10H80\" stroke=\"#b9b9bd\" stroke-width=\"1.6\" stroke-dasharray=\"2 4\" stroke-linecap=\"round\"/></svg><span class=\"ds-alt ds-none\">No open source option listed yet</span><span class=\"ds-toggle\">Details</span></div>",
+      "css": ":host{--ground:#fafaf8;--ink:#17181b;--muted:#5d5e63;--faint:#b9b9bd;--rule:rgba(23,24,27,.1);--rent:#c2307f;--open:#0a85a8;--open-text:#077590;--sans:\"Archivo\",system-ui,sans-serif;--condensed:\"Barlow Condensed\",\"Archivo\",sans-serif;--mono:\"JetBrains Mono\",ui-monospace,monospace;} .ds-lane{display:grid;grid-template-columns:64px 200px 200px 112px 1fr 84px;align-items:center;min-height:51px;border-bottom:1px solid var(--rule);background:var(--ground);color:var(--ink);font:400 16px/1.45 var(--sans);cursor:pointer;} .ds-no{font:700 26px/1 var(--condensed);color:var(--muted);} .ds-svc{font-weight:600;} .ds-who{font-size:14px;color:var(--muted);} .ds-who b{color:var(--ink);font-weight:500;} .ds-alt{color:var(--open-text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .ds-alt.ds-none{color:var(--muted);font-weight:400;font-size:14px;} .ds-toggle{justify-self:end;font-size:14px;color:var(--muted);} .ds-lane:hover .ds-toggle{color:var(--ink);}"
+    },
+    {
+      "name": "Link Glyph",
+      "kind": "custom",
+      "description": "Broken (rented, with options), open-ended (rented, none listed), whole (owned).",
+      "html": "<div class=\"ds-key\"><svg width=\"90\" height=\"20\" viewBox=\"0 0 90 20\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"10\" r=\"3.2\" fill=\"#c2307f\"/><path d=\"M8 10H36M36 4v12M50 4v12\" stroke=\"#c2307f\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M54 10H80\" stroke=\"#0a85a8\" stroke-width=\"2\" stroke-linecap=\"round\"/><circle cx=\"84.5\" cy=\"10\" r=\"3.6\" fill=\"none\" stroke=\"#0a85a8\" stroke-width=\"1.6\"/></svg> Broken link: you rent this.</div><div class=\"ds-key\"><svg width=\"90\" height=\"20\" viewBox=\"0 0 90 20\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"10\" r=\"3.2\" fill=\"#c2307f\"/><path d=\"M8 10H36M36 4v12M50 4v12\" stroke=\"#c2307f\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M54 10H80\" stroke=\"#b9b9bd\" stroke-width=\"1.6\" stroke-dasharray=\"2 4\" stroke-linecap=\"round\"/></svg> No open source option listed yet.</div><div class=\"ds-key\"><svg width=\"90\" height=\"20\" viewBox=\"0 0 90 20\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"10\" r=\"3.2\" fill=\"#0a85a8\"/><path d=\"M8 10H80\" stroke=\"#0a85a8\" stroke-width=\"2\" stroke-linecap=\"round\"/><circle cx=\"84.5\" cy=\"10\" r=\"3.6\" fill=\"none\" stroke=\"#0a85a8\" stroke-width=\"1.6\"/></svg> Whole link: this runs on open source.</div>",
+      "css": ":host{--ground:#fafaf8;--ink:#17181b;--muted:#5d5e63;--faint:#b9b9bd;--rule:rgba(23,24,27,.1);--rent:#c2307f;--open:#0a85a8;--open-text:#077590;--sans:\"Archivo\",system-ui,sans-serif;--condensed:\"Barlow Condensed\",\"Archivo\",sans-serif;--mono:\"JetBrains Mono\",ui-monospace,monospace;} .ds-key{display:flex;align-items:center;gap:12px;padding:6px 0;font:400 14px/1.45 var(--sans);color:var(--muted);background:var(--ground);}"
+    },
+    {
+      "name": "Details Block",
+      "kind": "card",
+      "refersTo": "details-block",
+      "description": "Hairline-bounded block on the ground, no fill: evidence left, open source options right.",
+      "html": "<div class=\"ds-more\"><div><h2>Evidence</h2><ul><li>dns: NS tim.ns.cloudflare.com</li><li>dns: NS zara.ns.cloudflare.com</li></ul><p>dns, weight 3</p></div><div><h2>Open source options</h2><table><tr><th><a href=\"#\">PowerDNS</a></th><td>GPL-2.0</td><td>4.5k stars</td><td>release 2026-08-12</td></tr><tr><th><a href=\"#\">NSD</a></th><td>BSD-3-Clause</td><td>573 stars</td><td>release 2026-09-02</td></tr></table></div></div>",
+      "css": ":host{--ground:#fafaf8;--ink:#17181b;--muted:#5d5e63;--faint:#b9b9bd;--rule:rgba(23,24,27,.1);--rent:#c2307f;--open:#0a85a8;--open-text:#077590;--sans:\"Archivo\",system-ui,sans-serif;--condensed:\"Barlow Condensed\",\"Archivo\",sans-serif;--mono:\"JetBrains Mono\",ui-monospace,monospace;} .ds-more{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 40px;padding:14px 20px;border:1px solid var(--rule);background:var(--ground);color:var(--ink);font:400 16px/1.45 var(--sans);} .ds-more h2{margin:0 0 8px;font:500 14px var(--sans);color:var(--muted);} .ds-more ul{margin:0;padding:0;list-style:none;font:400 14px/1.6 var(--mono);} .ds-more p{margin:8px 0 0;font-size:14px;color:var(--muted);} .ds-more table{border-collapse:collapse;} .ds-more th,.ds-more td{padding:0 24px 4px 0;text-align:left;white-space:nowrap;} .ds-more th{font-weight:500;color:var(--open-text);} .ds-more th a{color:inherit;text-underline-offset:3px;text-decoration-color:var(--faint);} .ds-more th a:hover{text-decoration-color:currentColor;} .ds-more td{font-size:14px;color:var(--muted);}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Normalling Schedule",
+    "overview": "A result reads like a jackfield schedule in a studio patch bay: numbered lanes, one per service, each showing whether its link to an open source \"normal\" is intact or broken. The page is a quiet, printed-feeling ledger on a near-white ground with hairline rules. Two signal colours carry the whole verdict, and everything else is ink and grey.\n\nDensity is high but calm. One sentence states the finding, a score sits beside it, and each service gets exactly one line. Evidence, licence, stars and release wait behind Details. The visitor gets the point from the lane line alone; the evidence is there to verify, never required.\n\nRejected by the user, and not to return: red/green pass-fail, dark or backlit themes, loud colour fields, colour used without a meaning, and information overload.",
+    "keyCharacteristics": [
+      "Light ground, ink text, hairline rules; no fills, no cards, no shadows.",
+      "Two signal colours, one meaning each: magenta is rented, cyan is open source.",
+      "The link glyph is the signature: broken, open-ended or whole.",
+      "Condensed display face for the headline and lane numbers only.",
+      "Mono only for evidence strings.",
+      "Self-hosted fonts; zero third-party requests."
+    ],
+    "rules": [
+      {
+        "name": "The One Meaning Rule",
+        "body": "Magenta means rented. Cyan means open source. A signal colour never decorates, never marks state, never appears on anything without that meaning. If a new element is neither rented nor open source, it is ink or grey.",
+        "section": "colors"
+      },
+      {
+        "name": "The Stroke and Text Split Rule",
+        "body": "Open Cyan (#0A85A8) is for glyph strokes; any cyan text uses Open Cyan Text (#077590) for contrast.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Pass-Fail Rule",
+        "body": "No red, no green, no traffic lights. The verdict is carried by the link glyph and the two signal hues, not by a grade colour.",
+        "section": "colors"
+      },
+      {
+        "name": "The Evidence-Only Mono Rule",
+        "body": "Mono is for evidence strings and nothing else: never for labels, numbers, domains in headings or decoration.",
+        "section": "typography"
+      },
+      {
+        "name": "The Two-Place Condensed Rule",
+        "body": "Barlow Condensed appears in the headline and lane numbers only. Everything else is Archivo.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hairline Only Rule",
+        "body": "Separation is a 1px hairline (rgba(23, 24, 27, 0.1)). No fills, no cards, no shadows, no tinted panels.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do give every rented service its own numbered lane with its alternatives named on the same line.",
+      "Do use magenta only for rented and cyan only for open source.",
+      "Do set cyan text in #077590 and keep #0A85A8 for glyph strokes.",
+      "Do separate with 1px hairlines and keep everything on the paper ground.",
+      "Do keep mono for evidence strings only.",
+      "Do self-host every font and asset; the page makes zero third-party requests.",
+      "Do write copy in plain American English, without em-dashes."
+    ],
+    "donts": [
+      "Don't use red/green or any pass-fail colouring.",
+      "Don't use dark or backlit themes, glow, or loud colour fields.",
+      "Don't introduce a colour that has no meaning, or reuse a signal colour for a second meaning.",
+      "Don't use fills, cards, tiles or shadows; an open Details is a hairline-bounded block.",
+      "Don't put more than one line per lane at rest; evidence and metadata live behind Details.",
+      "Don't load fonts, scripts or images from a third party."
+    ]
+  }
+}

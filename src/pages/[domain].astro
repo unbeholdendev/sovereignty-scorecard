@@ -1,11 +1,17 @@
 ---
+import "@fontsource/archivo/400.css";
+import "@fontsource/archivo/500.css";
+import "@fontsource/archivo/600.css";
+import "@fontsource/barlow-condensed/600.css";
+import "@fontsource/barlow-condensed/700.css";
+import "@fontsource/jetbrains-mono/400.css";
 import { realAsn } from "../adapters/asn";
 import { realDns } from "../adapters/dns";
 import { realHttp } from "../adapters/http";
 import { cardContent } from "../card";
 import { allowScan, allowSignup, isFresh, rescanAt } from "../limits";
 import type { Repo } from "../scanner/catalogue";
-import { normalise, scanDomain } from "../scanner/scan";
+import { type Detection, normalise, scanDomain } from "../scanner/scan";
 import github from "../github.json";
 import { getResult, isHidden, saveResult, saveSignup } from "../store";
 
@@ -29,14 +35,34 @@ if (!result || !isFresh(result.scannedAt) || (rescan && Date.now() >= rescanAt(r
 if (rescan) return Astro.redirect(`/${domain}`);
 const rescanOpens = rescanAt(result.scannedAt);
 const meta = github as Record<string, Repo>;
+const icons = import.meta.glob<string>("../icons/*.png", { eager: true, query: "?url", import: "default" });
+const icon = (name: string) => icons[`../icons/${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`];
 const card = cardContent(result);
 const score = result.score ?? "not enough data";
 const title = `${domain} ownership score: ${score}`;
 const description = [card.line, ...card.top].join(". ");
+
+const byWeight = (a: Detection, b: Detection) => b.weight - a.weight || a.name.localeCompare(b.name);
+const rented = result.detections.filter((d) => d.kind === "rented").sort(byWeight);
+const owned = result.detections.filter((d) => d.kind === "owned").sort(byWeight);
+const unscored = result.detections.filter((d) => d.kind === "unscored");
+const lanes = [...rented, ...owned];
+const companies = result.rentedCompanies.length;
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+const headline =
+  result.status === "refused" ? `${domain} points at a private address, so it was not scanned.`
+  : result.status === "unreachable" && !lanes.length ? `${domain} could not be reached.`
+  : result.score === null ? `Not enough data to score ${domain}.`
+  : rented.length ? `${domain} rents ${plural(rented.length, "service", "services")} from ${plural(companies, "company", "companies")}.`
+  : `${domain} owns every service we could score.`;
+const when = new Date(result.scannedAt).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" });
+const stars = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
+const lane = (i: number) => String(i + 1).padStart(2, "0");
 ---
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     {isHidden(domain) && <meta name="robots" content="noindex" />}
     <title>{domain} | Unbeholden Check</title>
     <meta property="og:title" content={title} />
@@ -45,43 +71,275 @@ const description = [card.line, ...card.top].join(". ");
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
-    <h1>{domain}</h1>
-    {result.status === "refused" && <p>Refused: this domain points at a private address.</p>}
-    {result.status === "unreachable" && <p>The homepage could not be fetched.</p>}
-    <p>Ownership score: {score}</p>
-    {result.rentedCompanies.length > 0 && <p>{card.line}: {result.rentedCompanies.join(", ")}</p>}
-    <ul>
-      {result.detections.map((d) => (
-        <li>
-          {d.category === "account" ? `Has an account with ${d.name}` : `${d.name} (${d.category}): ${d.kind}`}
-          <ul>{d.evidence.map((e) => <li><code>{e.detail}</code></li>)}</ul>
-          {d.kind === "rented" && d.alternatives.length === 0 && <p>No alternative mapped yet.</p>}
-          {d.alternatives.length > 0 && (
-            <ul>
-              {d.alternatives.map((a) => (
+    <header class="bar">
+      <a class="name" href="/">Unbeholden Check</a>
+      <span class="when">Scanned {when} UTC</span>
+      <form action="/" class="check">
+        <input name="domain" value={domain} aria-label="Domain" required />
+        <button>Check</button>
+      </form>
+    </header>
+
+    <main>
+      <section class="sum">
+        <div>
+          <h1>{headline}</h1>
+          {result.detections.length > 0 && (
+            <p class="counts">
+              <b>{result.detections.length}</b> found: <b class="rent">{rented.length}</b> rented, <b>{owned.length}</b> owned, <b>{unscored.length}</b> not scored.
+            </p>
+          )}
+          {result.status === "unreachable" && lanes.length > 0 && <p class="counts">The homepage could not be fetched, so only DNS was read.</p>}
+        </div>
+        {result.score !== null && <p class="score">{result.score} <small>/ 100 owned</small></p>}
+      </section>
+
+      {rented.length > 0 && (
+        <p class="key">
+          <svg width="90" height="20" aria-hidden="true"><use href="#broken" /></svg>
+          Broken link: you rent this. Open source options are named next to it.
+        </p>
+      )}
+      {owned.length > 0 && (
+        <p class="key">
+          <svg width="90" height="20" aria-hidden="true"><use href="#whole" /></svg>
+          Whole link: this runs on open source.
+        </p>
+      )}
+
+      <div class="lanes">
+        {lanes.map((d, i) => (
+          <details class={d.kind}>
+            <summary>
+              <span class="no">{lane(i)}</span>
+              <span class="svc">{d.name}</span>
+              <span class="who">
+                {d.kind === "owned" ? "owned" : d.company ? <>rented from <b>{d.company}</b></> : "rented, company not listed"}
+              </span>
+              <svg width="90" height="20" aria-hidden="true">
+                <use href={d.kind === "owned" ? "#whole" : d.alternatives.length ? "#broken" : "#open"} />
+              </svg>
+              <span class={d.alternatives.length || d.kind === "owned" ? "alt" : "alt none"}>
+                {d.kind === "owned" ? "Runs on open source" : d.alternatives.length ? d.alternatives.map((a) => <span>{icon(a.name) && <img src={icon(a.name)} alt="" />}{a.name}</span>) : "No open source option listed yet"}
+              </span>
+              <span class="toggle"></span>
+            </summary>
+            <div class="more">
+              <div>
+                <h2>Evidence</h2>
+                <ul class="mono">{d.evidence.map((e) => <li>{e.source}: {e.detail}</li>)}</ul>
+                <p class="weight">{d.category}, weight {d.weight}</p>
+              </div>
+              {d.alternatives.length > 0 && (
+                <div>
+                  <h2>Open source options</h2>
+                  <table>
+                    {d.alternatives.map((a) => (
+                      <tr>
+                        <th scope="row"><a href={a.selfHostUrl}>{icon(a.name) && <img src={icon(a.name)} alt="" />}{a.name}</a></th>
+                        {meta[a.repo] ? (
+                          <>
+                            <td>{meta[a.repo].licence}</td>
+                            <td>{stars(meta[a.repo].stars)} stars</td>
+                            <td>{meta[a.repo].release ? `release ${meta[a.repo].release}` : "no release"}</td>
+                          </>
+                        ) : <td colspan="3"></td>}
+                        <td>
+                          {a.managedUrl && <a href={a.managedUrl}>Managed</a>}
+                          {a.articles.map((url) => <a href={url}>Unbeholden article</a>)}
+                        </td>
+                      </tr>
+                    ))}
+                  </table>
+                </div>
+              )}
+            </div>
+          </details>
+        ))}
+
+        {unscored.length > 0 && (
+          <details class="rest">
+            <summary>
+              <span class="no"></span>
+              <span class="svc">{unscored.length} more found, not scored</span>
+              <span class="who">libraries, frameworks and accounts</span>
+              <span class="toggle"></span>
+            </summary>
+            <ul class="unscored">
+              {unscored.map((d) => (
                 <li>
-                  {a.name}{meta[a.repo] && <> ({meta[a.repo].licence}, {meta[a.repo].stars} stars, latest release {meta[a.repo].release ?? "none"})</>}: <a href={a.selfHostUrl}>Self-host</a>
-                  {a.managedUrl && <> · <a href={a.managedUrl}>Managed</a></>}
-                  {a.articles.map((url) => <> · <a href={url}>Unbeholden article</a></>)}
+                  <span>{d.category === "account" ? `Account with ${d.name}` : d.name}</span>
+                  <span class="mono">{d.evidence[0]?.detail}</span>
                 </li>
               ))}
             </ul>
-          )}
-        </li>
-      ))}
-    </ul>
-    <p>This scan reads DNS and one plain fetch of the homepage. Tools loaded later by JavaScript may be missing.</p>
-    <form>
-      <button name="rescan" disabled={Date.now() < rescanOpens}>Rescan</button>
-      {Date.now() < rescanOpens && <span>Available at {new Date(rescanOpens).toISOString().slice(11, 16)} UTC</span>}
-    </form>
-    <form method="post">
-      <label>Email me when this score changes <input name="email" type="email" required /></label>
-      <button>Save</button>
-      <p>{consent}</p>
-      {signup && <p>{signup}</p>}
-    </form>
-    <p>Scanned {result.scannedAt}. <a href="/">Check another domain</a></p>
-    <p>To have this page removed, email <a href="mailto:removal@unbeholden.dev">removal@unbeholden.dev</a>.</p>
+          </details>
+        )}
+      </div>
+
+      {result.status !== "refused" && <p class="note">This scan reads DNS and one plain fetch of the homepage. Tools loaded later by JavaScript may be missing.</p>}
+
+      <section class="after">
+        <form class="rescan">
+          <button name="rescan" disabled={Date.now() < rescanOpens}>Rescan</button>
+          {Date.now() < rescanOpens && <span>Available at {new Date(rescanOpens).toISOString().slice(11, 16)} UTC</span>}
+        </form>
+        {result.status !== "refused" && <form method="post" class="signup">
+          <label for="email">Email me when this score changes</label>
+          <div>
+            <input id="email" name="email" type="email" required />
+            <button>Save</button>
+          </div>
+          <p>{consent}</p>
+          {signup && <p class="said">{signup}</p>}
+        </form>}
+      </section>
+    </main>
+
+    <footer>
+      <a href="/">Check another domain</a>
+      <span>To have this page removed, email <a href="mailto:removal@unbeholden.dev">removal@unbeholden.dev</a>.</span>
+    </footer>
+
+    <svg width="0" height="0" class="defs" aria-hidden="true">
+      <symbol id="broken" viewBox="0 0 90 20">
+        <circle cx="5" cy="10" r="3.2" fill="var(--rent)" />
+        <path d="M8 10H36M36 4v12M50 4v12" stroke="var(--rent)" stroke-width="2" stroke-linecap="round" />
+        <path d="M54 10H80" stroke="var(--open)" stroke-width="2" stroke-linecap="round" />
+        <circle cx="84.5" cy="10" r="3.6" fill="none" stroke="var(--open)" stroke-width="1.6" />
+      </symbol>
+      <symbol id="open" viewBox="0 0 90 20">
+        <circle cx="5" cy="10" r="3.2" fill="var(--rent)" />
+        <path d="M8 10H36M36 4v12M50 4v12" stroke="var(--rent)" stroke-width="2" stroke-linecap="round" />
+        <path d="M54 10H80" stroke="var(--faint)" stroke-width="1.6" stroke-dasharray="2 4" stroke-linecap="round" />
+      </symbol>
+      <symbol id="whole" viewBox="0 0 90 20">
+        <circle cx="5" cy="10" r="3.2" fill="var(--open)" />
+        <path d="M8 10H80" stroke="var(--open)" stroke-width="2" stroke-linecap="round" />
+        <circle cx="84.5" cy="10" r="3.6" fill="none" stroke="var(--open)" stroke-width="1.6" />
+      </symbol>
+    </svg>
   </body>
 </html>
+
+<style is:global>
+  :root {
+    --ground: #fafaf8;
+    --ink: #17181b;
+    --muted: #5d5e63;
+    --faint: #b9b9bd;
+    --rule: rgba(23, 24, 27, 0.1);
+    --rent: #c2307f;
+    --open: #0a85a8;
+    --open-text: #077590;
+    --sans: "Archivo", system-ui, sans-serif;
+    --condensed: "Barlow Condensed", "Archivo", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+    --gutter: clamp(16px, 4vw, 56px);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 400 16px/1.45 var(--sans); font-variant-numeric: tabular-nums; }
+  ::selection { background: color-mix(in srgb, var(--ink) 14%, transparent); }
+  a { color: inherit; text-underline-offset: 3px; text-decoration-color: var(--faint); }
+  a:hover { text-decoration-color: currentColor; }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .mono { font-family: var(--mono); font-size: 14px; }
+  .defs { position: absolute; }
+
+  input, button { font: inherit; color: inherit; }
+  input { height: 36px; border: 1px solid rgba(23, 24, 27, 0.22); border-radius: 4px 0 0 4px; background: #fff; padding: 0 12px; min-width: 0; }
+  button { height: 36px; padding: 0 18px; border: 0; border-radius: 0 4px 4px 0; background: var(--ink); color: var(--ground); font-weight: 500; cursor: pointer; }
+  button:disabled { background: var(--faint); cursor: not-allowed; }
+
+  .bar { display: flex; align-items: center; gap: 24px; min-height: 52px; padding: 8px var(--gutter); border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
+  .bar .name { font-weight: 600; text-decoration: none; }
+  .bar .when { font-size: 14px; color: var(--muted); }
+  .check { margin-left: auto; display: flex; }
+  .check input { width: 280px; }
+
+  main { padding: 0 var(--gutter); }
+  .sum { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; padding: 24px 0 18px; }
+  h1 { margin: 0 0 8px; font: 600 clamp(32px, 4vw, 46px)/1 var(--condensed); text-wrap: balance; }
+  .counts { margin: 0; color: var(--muted); }
+  .counts b { color: var(--ink); font-weight: 600; }
+  .counts .rent { color: var(--rent); }
+  .score { margin: 0; flex: none; text-align: right; font: 600 44px/1 var(--sans); letter-spacing: -0.01em; }
+  .score small { font-size: 20px; font-weight: 500; color: var(--muted); }
+
+  .key { display: flex; align-items: center; gap: 12px; margin: 0; padding-bottom: 12px; font-size: 14px; color: var(--muted); border-bottom: 1px solid var(--rule); }
+
+  details { border-bottom: 1px solid var(--rule); }
+  summary { list-style: none; display: grid; grid-template-columns: 64px minmax(0, 230px) minmax(0, 250px) 112px minmax(0, 1fr) 84px; align-items: center; min-height: 51px; cursor: pointer; }
+  summary::-webkit-details-marker { display: none; }
+  .no { font: 700 26px/1 var(--condensed); color: var(--muted); }
+  details[open] > summary .no { color: var(--ink); }
+  .svc { font-weight: 600; }
+  .who { font-size: 14px; color: var(--muted); }
+  .who b { color: var(--ink); font-weight: 500; }
+  .alt { color: var(--open-text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .alt > span { margin-right: 16px; white-space: nowrap; }
+  .alt img, .more th img { width: 20px; height: 20px; margin-right: 6px; vertical-align: -4px; }
+  .alt.none { color: var(--muted); font-weight: 400; font-size: 14px; }
+  .owned .alt { color: var(--muted); font-weight: 400; font-size: 14px; }
+  .toggle { justify-self: end; display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+  .toggle::before { content: "Details"; }
+  details[open] > summary .toggle::before { content: "Hide"; }
+  .toggle::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+  details[open] > summary .toggle::after { transform: translateY(2px) rotate(-135deg); }
+  summary:hover .toggle { color: var(--ink); }
+
+  .more { display: grid; grid-template-columns: minmax(0, 480px) minmax(0, 1fr); gap: 16px 40px; margin: 0 0 12px 64px; padding: 14px 20px; border: 1px solid var(--rule); }
+  .more h2 { margin: 0 0 8px; font: 500 14px var(--sans); color: var(--muted); }
+  .more ul { margin: 0; padding: 0; list-style: none; line-height: 1.6; overflow-wrap: anywhere; }
+  .weight { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+  .more table { border-collapse: collapse; }
+  .more th, .more td { padding: 0 24px 4px 0; text-align: left; white-space: nowrap; vertical-align: baseline; }
+  .more th { font-weight: 500; color: var(--open-text); }
+  .more td { font-size: 14px; color: var(--muted); }
+  .more td a + a { margin-left: 12px; }
+
+  .rest summary { grid-template-columns: 64px auto 1fr 84px; }
+  .rest .who { padding-left: 12px; }
+  .rest .svc { font-weight: 500; }
+  .unscored { margin: 0 0 12px 64px; padding: 0; list-style: none; columns: 2 420px; column-gap: 40px; }
+  .unscored li { display: flex; gap: 12px; padding: 4px 0; break-inside: avoid; }
+  .unscored li span:first-child { flex: none; }
+  .unscored .mono { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .note { margin: 12px 0 0; font-size: 14px; color: var(--muted); }
+
+  .after { display: grid; grid-template-columns: auto minmax(0, 560px); gap: 48px; align-items: start; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--rule); }
+  .rescan { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--muted); }
+  .rescan button { border-radius: 4px; }
+  .signup label { display: block; font-weight: 500; margin-bottom: 8px; }
+  .signup div { display: flex; }
+  .signup input { flex: 1; }
+  .signup p { margin: 8px 0 0; font-size: 14px; color: var(--muted); max-width: 65ch; }
+  .signup .said { color: var(--ink); }
+
+  footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 40px; padding: 20px var(--gutter) 32px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--muted); }
+
+  @media (max-width: 900px) {
+    summary { grid-template-columns: 44px minmax(0, 1fr) auto; grid-template-areas: "no svc toggle" ". who who" ". link link" ". alt alt"; row-gap: 2px; padding: 10px 0; }
+    .no { grid-area: no; font-size: 22px; }
+    .svc { grid-area: svc; }
+    .who { grid-area: who; }
+    summary svg { grid-area: link; margin: 4px 0; }
+    .alt { grid-area: alt; white-space: normal; }
+    .toggle { grid-area: toggle; }
+    .rest summary { grid-template-columns: 44px minmax(0, 1fr) auto; grid-template-areas: "no svc toggle" ". who who"; }
+    .more { grid-template-columns: minmax(0, 1fr); margin-left: 0; padding: 12px; }
+    .more table, .more tbody, .more tr { display: block; }
+    .more tr { display: flex; flex-wrap: wrap; column-gap: 12px; padding-bottom: 6px; }
+    .more th { width: 100%; }
+    .more th, .more td { padding: 0; white-space: normal; }
+    .bar { gap: 4px 12px; }
+    .bar .when { font-size: 12px; }
+    .unscored { margin-left: 0; }
+    .sum { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .score { text-align: left; }
+    .after { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .check { margin-left: 0; width: 100%; }
+    .check input { flex: 1; width: auto; }
+  }
+</style>
