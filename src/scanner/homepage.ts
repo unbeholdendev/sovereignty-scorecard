@@ -31,10 +31,12 @@ export async function detectHomepage(page: Page): Promise<Detection[]> {
   try {
     const meta: Record<string, string[]> = {};
     for (const m of doc.querySelectorAll("meta")) {
-      const key = m.getAttribute("name") ?? m.getAttribute("property");
-      if (key) meta[key.toLowerCase()] = [m.getAttribute("content") ?? ""];
+      const key = (m.getAttribute("name") ?? m.getAttribute("property"))?.toLowerCase();
+      // Site verification tokens prove an account, not that the service runs on the page.
+      if (key && !key.endsWith("-verification")) meta[key] = [m.getAttribute("content") ?? ""];
     }
-    const headers = Object.fromEntries(Object.entries(page.headers).map(([k, v]) => [k, [v]]));
+    // A CSP lists what a page may load, not what it does.
+    const headers = Object.fromEntries(Object.entries(page.headers).filter(([k]) => !k.startsWith("content-security-policy")).map(([k, v]) => [k, [v]]));
     const found = wappalyzer.analyze({
       url: page.url,
       html: page.body,

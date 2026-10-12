@@ -1,5 +1,5 @@
 import { BlockList, isIP, isIPv6 } from "node:net";
-import { getDomain } from "tldts";
+import { getDomain, getDomainWithoutSuffix } from "tldts";
 import type { Asn } from "./asn";
 import { detectHomepage } from "./homepage";
 import { detectHosting } from "./hosting";
@@ -107,7 +107,8 @@ export async function scanDomain(input: string, { dns, http, asn }: { dns: Dns; 
   }
   const homepage = page ? await detectHomepage(page) : [];
   const hosting = page && ips[0] ? [detectHosting(page.headers, ips[0], asn, homepage)] : [];
-  const detections = [...found.values(), ...hosting, ...homepage.filter((d) => d.id !== hosting[0]?.id)].map(attachCatalogue);
+  const detections = [...found.values(), ...hosting, ...homepage.filter((d) => d.id !== hosting[0]?.id)].map(attachCatalogue)
+    .map((d) => (d.kind === "rented" && isVendor(d, domain) ? { ...d, kind: "owned" as const, alternatives: [] } : d));
   return { domain, scannedAt, status: page ? "ok" : "unreachable", detections, ...score(detections) };
 }
 
@@ -150,4 +151,12 @@ function score(detections: Detection[]) {
   const total = sum(["owned", "rented"]);
   const rented = detections.filter((d) => d.kind === "rented" && d.company).map((d) => d.company!);
   return { score: total ? Math.round((sum(["owned"]) / total) * 100) : null, rentedCompanies: [...new Set(rented)] };
+}
+
+const squash = (s = "") => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+// A vendor is not renting its own product: amazon.com on Route 53, paypal.com on PayPal.
+function isVendor(d: Detection, domain: string) {
+  const label = squash(getDomainWithoutSuffix(domain) ?? undefined);
+  return squash(d.company) === label || squash(d.name.split(" ")[0]) === label;
 }

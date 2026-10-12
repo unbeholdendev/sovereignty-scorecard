@@ -120,7 +120,7 @@ test("nothing scored is not enough data", async () => {
 });
 
 test.each([
-  ["fastmail.com", ["fastmail", "own-hosting"], 50],
+  ["fastmail.com", ["fastmail", "own-hosting"], 100],
   ["unbeholden.dev", ["spaceship-dns", "own-mail", "smtp2go", "own-hosting"], 50],
 ])("captured %s scores only %p, at %d", async (domain, ids, score) => {
   const result = await scanDomain(domain, fake(await Bun.file(`${import.meta.dir}/fixtures/${domain}.json`).json()));
@@ -389,10 +389,10 @@ test("a DKIM key at the mandrill selector is Mandrill", async () => {
   ]);
 });
 
-test("captured fastmail.com attaches mail alternatives and is rented from one company", async () => {
+test("captured fastmail.com owns its Fastmail mail rather than renting it", async () => {
   const result = await scanDomain("fastmail.com", fake(await Bun.file(`${import.meta.dir}/fixtures/fastmail.com.json`).json()));
-  expect(result.detections[0].alternatives.map((a) => a.name)).toEqual(["Stalwart", "Mailcow", "Mox"]);
-  expect(result.rentedCompanies).toEqual(["Fastmail"]);
+  expect(result.detections[0]).toMatchObject({ id: "fastmail", kind: "owned", alternatives: [] });
+  expect(result.rentedCompanies).toEqual([]);
 });
 
 test("owned mail gets no alternatives, uncatalogued rented mail gets the mail defaults; companies are counted once each", async () => {
@@ -410,6 +410,22 @@ test("owned mail gets no alternatives, uncatalogued rented mail gets the mail de
 
 const site = (body: string, headers: Record<string, string> = {}) =>
   fake({ dns: {}, http: { status: 200, url: "https://example.com/", headers, body } });
+
+test("a CSP allowlist and a site verification tag are not detections", async () => {
+  const result = await scanDomain(
+    "example.com",
+    site(`<html><head><meta name="naver-site-verification" content="0280b3893b4fa7c8"></head></html>`, {
+      "content-security-policy": "default-src 'self' https://*.paypal.com",
+    }),
+  );
+  expect(result.detections.map((d) => d.name)).not.toContain("PayPal");
+  expect(result.detections.map((d) => d.name)).not.toContain("Naver Analytics");
+});
+
+test("a vendor's own product on its own site is owned", async () => {
+  const result = await scanDomain("paypal.com", site(`<html><body><div data-paypal-smart-button-version="5"></div></body></html>`));
+  expect(result.detections.find((d) => d.name === "PayPal")).toMatchObject({ kind: "owned" });
+});
 
 test("Google Analytics and Google Fonts are rented, with the tags as evidence", async () => {
   const result = await scanDomain(
