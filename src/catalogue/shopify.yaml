@@ -1,0 +1,19 @@
+name: Shopify
+matches: [Shopify]
+category: hosting
+company: Shopify
+openSource: false
+alternatives:
+  - name: WooCommerce
+    repo: https://github.com/woocommerce/woocommerce
+    licence: GPL-2.0-or-later
+    selfHostUrl: https://woocommerce.com/document/installing-uninstalling-woocommerce/
+  - name: Medusa
+    repo: https://github.com/medusajs/medusa
+    licence: MIT
+    selfHostUrl: https://docs.medusajs.com/learn/installation
+    managedUrl: https://medusajs.com/pricing/
+  - name: Saleor
+    repo: https://github.com/saleor/saleor
+    selfHostUrl: https://docs.saleor.io/setup/docker-compose
+    managedUrl: https://saleor.io/pricing

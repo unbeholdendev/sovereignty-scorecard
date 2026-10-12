@@ -79,7 +79,7 @@ export async function scanDomain(input: string, { dns, http, asn }: { dns: Dns; 
   const refused = { domain, scannedAt, status: "refused" as const, detections: [], score: null, rentedCompanies: [] };
   const ips = await addresses(dns, domain);
   if (ips.some(isPrivate)) return refused;
-  const page = await fetchPage(dns, http, `https://${domain}/`).catch(() => null);
+  const page = await fetchPage(dns, http, `https://${domain}/`).then((p) => (p !== "refused" && p.status >= 400 ? null : p)).catch(() => null);
   if (page === "refused") return refused;
   const found = new Map<string, Detection>();
   const mail = (host: string) => provider(mailRules, bareHost(host), domain, "mail", "Own mail server");
@@ -90,7 +90,7 @@ export async function scanDomain(input: string, { dns, http, asn }: { dns: Dns; 
   const txt = await dns.resolve(domain, "TXT");
   for (const record of txt.filter((r) => r.startsWith("v=spf1 ")))
     for (const [term, host] of record.matchAll(/(?:include:|redirect=)(\S+)/g))
-      if (!isWithin(bareHost(host), domain))
+      if (!host.includes("%{") && !isWithin(bareHost(host), domain))
         add(found, "mail", mail(host), `SPF ${term}`);
   for (const record of txt) {
     const rule = verificationRules.find((r) => r.prefixes.some((p) => record.startsWith(p)));
@@ -136,13 +136,16 @@ async function fetchPage(dns: Dns, http: Http, url: string): Promise<Page | "ref
 }
 
 function attachCatalogue(d: Detection): Detection {
-  const tool = catalogue.find((t) => t.matches.includes(d.id));
+  const tool = catalogue.find((t) => t.matches.some((m) => m.toLowerCase() === d.id.toLowerCase()));
   if (!tool) return d;
   return { ...d, company: d.company ?? tool.company, alternatives: d.kind === "rented" ? tool.alternatives.map(({ licence, ...a }) => a) : [] };
 }
 
 function score(detections: Detection[]) {
-  const sum = (kinds: string[]) => detections.filter((d) => kinds.includes(d.kind)).reduce((n, d) => n + d.weight, 0);
+  const scored = detections.filter((d) => d.kind !== "unscored");
+  // A category's weight is shared by its providers, so five mail senders count no more than one.
+  const share = (d: Detection) => d.weight / scored.filter((e) => e.category === d.category).length;
+  const sum = (kinds: string[]) => scored.filter((d) => kinds.includes(d.kind)).reduce((n, d) => n + share(d), 0);
   const total = sum(["owned", "rented"]);
   const rented = detections.filter((d) => d.kind === "rented" && d.company).map((d) => d.company!);
   return { score: total ? Math.round((sum(["owned"]) / total) * 100) : null, rentedCompanies: [...new Set(rented)] };

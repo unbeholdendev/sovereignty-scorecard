@@ -160,6 +160,10 @@ test.each([
   ["hydrogen.ns.hetzner.com", "hetzner-dns"],
   ["ns1.digitalocean.com", "digitalocean-dns"],
   ["curitiba.ns.porkbun.com", "porkbun-dns"],
+  ["a1-64.akam.net", "akamai-dns"],
+  ["ns1.exoscale.ch", "exoscale-dns"],
+  ["ns1.cscdns.net", "csc-dns"],
+  ["pns41.cloudns.net", "cloudns"],
 ])("NS %s is %s", async (host, id) => {
   const [detection] = (await scanDomain("example.com", dns({ "NS example.com": [host] }))).detections;
   expect(detection).toMatchObject({ id, kind: "rented", category: "dns", weight: 3 });
@@ -214,6 +218,11 @@ test.each([
   ["_spf.salesforce.com", "salesforce"],
   ["_spf.protonmail.ch", "proton"],
   ["spf.messagingengine.com", "fastmail"],
+  ["helpscoutemail.com", "help-scout"],
+  ["spf-00123.pphosted.com", "proofpoint"],
+  ["eu._netblocks.mimecast.com", "mimecast"],
+  ["sparkpostmail.com", "sparkpost"],
+  ["_spf.createsend.com", "campaign-monitor"],
 ])("SPF include:%s is %s", async (host, id) => {
   const [detection] = (await scanDomain("example.com", spf(`v=spf1 include:${host} -all`))).detections;
   expect(detection).toMatchObject({ id, kind: "rented", category: "mail" });
@@ -231,6 +240,30 @@ test("SPF and MX for the same provider are one detection with both records", asy
       ],
     },
   ]);
+});
+
+test("an SPF include with macros is skipped", async () => {
+  const result = await scanDomain("example.com", spf("v=spf1 include:%{i}._ip.%{h}._ehlo.%{d}._spf.vali.email ~all"));
+  expect(result.detections).toEqual([]);
+});
+
+test("a catalogue entry matches a rule id regardless of case", async () => {
+  const [detection] = (await scanDomain("example.com", spf("v=spf1 include:mail.zendesk.com ~all"))).detections;
+  expect(detection.alternatives.map((a) => a.name)).toEqual(["Chatwoot", "Zammad"]);
+});
+
+test("Microsoft 365 DKIM under mail.microsoft is Microsoft 365", async () => {
+  const target = "selector1-example-com._domainkey.example.a-v1.dkim.mail.microsoft";
+  const [detection] = (await scanDomain("example.com", dns({ "CNAME selector1._domainkey.example.com": [target] }))).detections;
+  expect(detection).toMatchObject({ id: "microsoft-365", kind: "rented" });
+});
+
+test("a category's weight is shared by its providers", async () => {
+  const result = await scanDomain("example.com", dns({
+    "NS example.com": ["ns1.example.com"],
+    "TXT example.com": ["v=spf1 include:sendgrid.net include:mailgun.org include:amazonses.com ~all"],
+  }));
+  expect(result.score).toBe(50);
 });
 
 test("SPF redirect counts like an include", async () => {
@@ -662,4 +695,42 @@ test("a missing ASN database leaves the hosting network unknown instead of faili
   process.env.ASN_DB = "/nonexistent/asn.sqlite";
   const result = await scanDomain("example.com", { ...fake({ dns: { "A example.com": ["93.184.215.14"] }, http: page }), asn: realAsn });
   expect(hosting(result)).toMatchObject([{ id: "own-hosting", company: undefined, evidence: [{ source: "asn", detail: "93.184.215.14" }] }]);
+});
+
+test("a Shopify store is rented Shopify hosting, not its own server", async () => {
+  const result = await scanDomain("example.com", {
+    ...site(`<script src="https://cdn.shopify.com/s/trekkie.storefront.js"></script>`),
+    dns: { resolve: async (_: string, type: string) => (type === "A" ? ["93.184.215.14"] : []) },
+  });
+  expect(hosting(result)).toMatchObject([{ id: "Shopify", company: "Shopify", kind: "rented", weight: 3 }]);
+  expect(result.detections.filter((d) => d.id === "Shopify")).toHaveLength(1);
+});
+
+test("an address on a CDN network is unknown hosting, not an own server", async () => {
+  const result = await scanDomain("example.com", {
+    ...fake({ dns: { "A example.com": ["151.101.1.91"] }, http: page }),
+    asn: () => ({ asn: 54113, org: "FASTLY" }),
+  });
+  expect(hosting(result)).toMatchObject([{ id: "unknown-hosting", kind: "unscored" }]);
+});
+
+test("a CMS is scored: WordPress is owned", async () => {
+  const result = await scanDomain("example.com", site(`<script src="/wp-includes/js/wp-embed.min.js"></script>`));
+  expect(result.detections.find((d) => d.id === "WordPress")).toMatchObject({ category: "cms", kind: "owned", weight: 2 });
+});
+
+test("the Google Tag Manager noscript frame is Google Tag Manager", async () => {
+  const result = await scanDomain("example.com", site(`<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-ABC"></iframe></noscript>`));
+  expect(result.detections.map((d) => d.id)).toEqual(["Google Tag Manager"]);
+});
+
+test("the current Plausible script is Plausible", async () => {
+  const result = await scanDomain("example.com", site(`<script defer src="https://plausible.io/js/script.js"></script>`));
+  expect(result.detections).toMatchObject([{ id: "Plausible", category: "analytics" }]);
+});
+
+test("an error page is not read as the homepage", async () => {
+  const result = await scanDomain("example.com", fake({ dns: {}, http: { ...page, status: 403, body: ga } }));
+  expect(result.status).toBe("unreachable");
+  expect(result.detections).toEqual([]);
 });

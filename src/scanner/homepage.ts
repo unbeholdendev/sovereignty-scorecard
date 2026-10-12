@@ -3,6 +3,7 @@ import { getDomain } from "tldts";
 import categories from "../wappalyzer/categories.json";
 import technologies from "../wappalyzer/technologies.json";
 import wappalyzer from "wappalyzer-core";
+import { catalogue } from "./catalogue";
 import type { Detection, Evidence, Page } from "./scan";
 import { detection, weightOf } from "./weights";
 
@@ -12,7 +13,7 @@ wappalyzer.setCategories(categories);
 const scored: Record<number, string> = {
   10: "analytics", 78: "analytics", 42: "tag-managers", 17: "fonts", 31: "cdn", 52: "chat", 110: "forms", 73: "forms",
   16: "captcha", 14: "video", 103: "video", 35: "maps", 41: "payments", 91: "payments", 53: "crm", 32: "crm", 97: "crm",
-  15: "comments", 29: "search", 69: "auth", 74: "ab-testing", 36: "ads", 77: "ads", 71: "ads",
+  1: "cms", 11: "cms", 15: "comments", 29: "search", 69: "auth", 74: "ab-testing", 36: "ads", 77: "ads", 71: "ads",
 };
 const captcha = /captcha|turnstile/i;
 const library = /^(JavaScript (libraries|frameworks)|UI frameworks)$/;
@@ -39,7 +40,7 @@ export async function detectHomepage(page: Page): Promise<Detection[]> {
       html: page.body,
       meta,
       headers,
-      scriptSrc: [...doc.querySelectorAll("script[src]")].map((s) => new URL(s.getAttribute("src")!, page.url).href),
+      scriptSrc: [...doc.querySelectorAll("script[src], iframe[src]")].map((s) => new URL(s.getAttribute("src")!, page.url).href),
       scripts: [...doc.querySelectorAll("script:not([src])")].map((s) => s.textContent).join("\n"),
     });
     for (const technology of wappalyzer.technologies)
@@ -77,10 +78,11 @@ export async function detectHomepage(page: Page): Promise<Detection[]> {
 }
 
 function categoryOf(name: string, ids: number[]) {
-  return ids
+  const listed = catalogue.find((c) => c.matches.includes(name))?.category;
+  return [...(listed ? [listed] : []), ...ids
     // Wappalyzer's category 16 is all security tools; only captchas are a service.
     .filter((id) => scored[id] && (id !== 16 || captcha.test(name)))
-    .map((id) => scored[id])
+    .map((id) => scored[id])]
     .sort((a, b) => weightOf(b) - weightOf(a))[0];
 }
 

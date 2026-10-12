@@ -1,6 +1,6 @@
 export const mailRules = [
   { id: "google-workspace", name: "Google Workspace", company: "Google", hosts: ["google.com", "googlemail.com"], selector: "google" },
-  { id: "microsoft-365", name: "Microsoft 365", company: "Microsoft", hosts: ["protection.outlook.com", "onmicrosoft.com"] },
+  { id: "microsoft-365", name: "Microsoft 365", company: "Microsoft", hosts: ["protection.outlook.com", "onmicrosoft.com", "mail.microsoft"] },
   { id: "proton", name: "Proton Mail", company: "Proton", hosts: ["protonmail.ch", "proton.me", "proton.ch"] },
   { id: "fastmail", name: "Fastmail", company: "Fastmail", hosts: ["messagingengine.com", "fmhosted.com"] },
   { id: "zoho", name: "Zoho Mail", company: "Zoho", hosts: ["zoho.com", "zoho.eu", "zoho.in", "zoho.com.au", "zohomail.com"], selector: "zmail" },
@@ -16,6 +16,11 @@ export const mailRules = [
   { id: "zendesk", name: "Zendesk", company: "Zendesk", hosts: ["zendesk.com"] },
   { id: "salesforce", name: "Salesforce", company: "Salesforce", hosts: ["salesforce.com"] },
   { id: "smtp2go", name: "SMTP2GO", company: "SMTP2GO", hosts: ["smtp2go.com"] },
+  { id: "help-scout", name: "Help Scout", company: "Help Scout", hosts: ["helpscoutemail.com"] },
+  { id: "proofpoint", name: "Proofpoint", company: "Proofpoint", hosts: ["pphosted.com"] },
+  { id: "mimecast", name: "Mimecast", company: "Mimecast", hosts: ["mimecast.com"] },
+  { id: "sparkpost", name: "SparkPost", company: "Bird", hosts: ["sparkpostmail.com", "sparkpost.com"] },
+  { id: "campaign-monitor", name: "Campaign Monitor", company: "Marigold", hosts: ["createsend.com"] },
   { id: "marketo", name: "Marketo", company: "Adobe", hosts: ["mktomail.com"] },
 ];
 

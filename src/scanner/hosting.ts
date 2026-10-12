@@ -13,6 +13,9 @@ const platforms = [
   { id: "Amazon CloudFront", company: "Amazon", header: "x-amz-cf-id" },
 ];
 
+// Cloudflare, Fastly, Akamai, CDN77 and Google's front end: an address here is never the site's own server.
+const cdnNetworks = new Set([13335, 209242, 54113, 20940, 16625, 21342, 60068, 15169]);
+
 export function detectHosting(headers: Record<string, string>, ip: string, asn: Asn, homepage: Detection[]): Detection {
   const net = asn(ip);
   const network = { source: "asn" as const, detail: net ? `${ip} AS${net.asn} ${net.org}` : ip };
@@ -22,7 +25,9 @@ export function detectHosting(headers: Record<string, string>, ip: string, asn: 
       id: platform.id, name: platform.id, category: "hosting", company: platform.company, kind: "rented",
       evidence: [{ source: "header", detail: `${platform.header}: ${headers[platform.header]}` }, network],
     });
-  const cdn = homepage.some((d) => d.category === "cdn" && d.evidence.some((e) => e.source === "header"));
+  const site = homepage.find((d) => d.category === "hosting");
+  if (site) return { ...site, evidence: [...site.evidence, network] };
+  const cdn = cdnNetworks.has(net?.asn!) || homepage.some((d) => d.category === "cdn" && d.evidence.some((e) => e.source === "header"));
   return detection({
     id: cdn ? "unknown-hosting" : "own-hosting", name: cdn ? "Unknown behind CDN" : "Own server", category: "hosting",
     company: net?.org, kind: cdn ? "unscored" : "owned", evidence: [network],

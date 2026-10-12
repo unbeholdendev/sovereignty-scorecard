@@ -45,7 +45,7 @@ Conservative detection with visible evidence is the main defence: a competitor w
 - Detection is passive: DNS plus one plain fetch of the homepage. The page must say plainly that tools loaded later by JavaScript may be missing.
 - "Not enough data" instead of a score when nothing scorable is found. Never a false 100.
 - Result states: ok, refused (private address), unreachable.
-- Weights: mail, DNS, hosting 3; CDN, auth, payments, forms, CRM 2; everything else 1. Libraries are listed but not scored.
+- Weights: mail, DNS, hosting 3; CDN, auth, payments, forms, CRM, CMS 2; everything else 1. Providers in one category share its weight. Libraries are listed but not scored.
 - Alternatives must be OSI-licensed, released within 12 months and not archived.
 - Terms: ownership score, owned, rented, not scored, rented from N companies, alternative, self-host, managed.
 - Out of scope: accounts, dashboards, badges, leaderboards, sending email, headless scanning, affiliate links, publishing the mapping as a dataset.

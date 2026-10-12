@@ -1,6 +1,6 @@
 name: Firebase
 matches: [Firebase]
-category: hosting
+category: backend
 company: Google
 openSource: false
 alternatives:

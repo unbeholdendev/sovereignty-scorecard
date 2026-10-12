@@ -14,5 +14,9 @@ export const nsRules = [
   { id: "squarespace-dns", name: "Squarespace DNS", company: "Squarespace", hosts: ["squarespacedns.com"] },
   { id: "vercel-dns", name: "Vercel DNS", company: "Vercel", hosts: ["vercel-dns.com"] },
   { id: "ns1", name: "NS1", company: "IBM", hosts: ["nsone.net"] },
+  { id: "akamai-dns", name: "Akamai Edge DNS", company: "Akamai", hosts: ["akam.net"] },
+  { id: "exoscale-dns", name: "Exoscale DNS", company: "Exoscale", hosts: ["exoscale.ch", "exoscale.com", "exoscale.net", "exoscale.io"] },
+  { id: "csc-dns", name: "CSC DNS", company: "CSC", hosts: ["cscdns.net", "cscdns.uk"] },
+  { id: "cloudns", name: "ClouDNS", company: "ClouDNS", hosts: ["cloudns.net"] },
   { id: "spaceship-dns", name: "Spaceship DNS", company: "Spaceship", hosts: ["spaceship.net"] },
 ];
