@@ -10,7 +10,7 @@ web
 
 Anyone who runs a website, technical or not, equally. Developers and founders read the DNS records and evidence and may self-host. Small-business owners and marketers need the score to make sense without the evidence and will often want the managed option. A page must work for both: the evidence is there to verify, never required to get the point.
 
-They arrive by typing their own domain, by following a shared result link or card, or by browsing examples and recent scans.
+They arrive by typing their own domain, by following a shared result link or card, or by browsing recent scans.
 
 ## Product Purpose
 
@@ -32,7 +32,7 @@ Conservative detection with visible evidence is the main defence: a competitor w
 
 ## Operating Context
 
-- Landing: domain input, about six example results (including unbeholden.dev), recently scanned domains with scores.
+- Landing: domain input, recently scanned domains with scores.
 - Result page per domain at `/<domain>`: public, indexable, stable URL. Cached 24 h; rescan once per domain per hour.
 - Share card image per domain (`/<domain>/card.png`): score, "rented from N companies", top three rented tools with their first alternative.
 - Email capture on result pages for future score-change alerts. Nothing is sent in v1.
@@ -59,7 +59,6 @@ Conservative detection with visible evidence is the main defence: a competitor w
 ## Evidence on Hand
 
 - Real scan fixtures in `test/fixtures/` (fastmail.com, karpenter.sh, nextjs.org, signal.org, unbeholden.dev).
-- Landing examples in `src/examples.json`, rescanned at build.
 - Catalogue of 99 tools in `src/catalogue/`; GitHub metadata in `src/github.json`.
 - unbeholden.dev currently scores 50 (Spaceship DNS and SMTP2GO count as rented).
 - No testimonials, users, press or usage numbers exist. Do not invent them.

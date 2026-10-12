@@ -1,5 +1,4 @@
 ---
-import examples from "../examples.json";
 import { normalise } from "../scanner/scan";
 import { recentResults } from "../store";
 
@@ -17,8 +16,6 @@ const recent = recentResults();
       <button>Check</button>
     </form>
     {input && <p>That is not a domain.</p>}
-    <h2>Examples</h2>
-    <ul>{examples.map((r) => <li><a href={`/${r.domain}`}>{r.domain}</a>: {r.score ?? "not enough data"}</li>)}</ul>
     {recent.length > 0 && <h2>Recently scanned</h2>}
     <ul>{recent.map((r) => <li><a href={`/${r.domain}`}>{r.domain}</a>: {r.score ?? "not enough data"}</li>)}</ul>
   </body>

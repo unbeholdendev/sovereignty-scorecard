@@ -9,8 +9,7 @@
     "capture": "bun scripts/capture.ts",
     "asn": "bun scripts/asn.ts",
     "refresh": "bun scripts/refresh.ts",
-    "examples": "bun scripts/examples.ts",
-    "release": "bun run asn && bun run refresh && bun run examples && astro build"
+    "release": "bun run asn && bun run refresh && astro build"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.7",
