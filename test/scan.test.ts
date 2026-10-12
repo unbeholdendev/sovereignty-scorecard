@@ -16,6 +16,7 @@ test.each(["Example.com", "www.example.com", "https://www.example.com/x"])(
 test.each([
   ["A", "10.0.0.1"],
   ["A", "127.0.0.1"],
+  ["A", "100.64.0.1"],
   ["A", "169.254.1.1"],
   ["A", "192.168.1.1"],
   ["AAAA", "::1"],
@@ -751,4 +752,16 @@ test("an error page is not read as the homepage", async () => {
   const result = await scanDomain("example.com", fake({ dns: {}, http: { ...page, status: 403, body: ga } }));
   expect(result.status).toBe("unreachable");
   expect(result.detections).toEqual([]);
+});
+
+test("each fetch goes to the address that was checked", async () => {
+  const ips: [string, string | undefined][] = [];
+  const pages: Record<string, Response> = { "https://example.com/": redirect("https://www.example.com/"), "https://www.example.com/": new Response(ga) };
+  const dns: Record<string, string[]> = { "A example.com": ["93.184.215.14"], "A www.example.com": ["93.184.215.15"] };
+  await scanDomain("example.com", {
+    asn: () => null,
+    dns: { resolve: async (name, type) => dns[`${type} ${name}`] ?? [] },
+    http: { get: async (url, ip) => (ips.push([url, ip]), pages[url]) },
+  });
+  expect(ips).toEqual([["https://example.com/", "93.184.215.14"], ["https://www.example.com/", "93.184.215.15"]]);
 });

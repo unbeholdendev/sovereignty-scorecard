@@ -8,8 +8,8 @@ const result = await scanDomain(process.argv[2], {
   asn: realAsn,
   dns: { resolve: async (name, type) => (fixture.dns[`${type} ${name}`] = await realDns.resolve(name, type)) },
   http: {
-    get: async (url, signal) => {
-      const res = await realHttp.get(url, signal);
+    get: async (url, ip, signal) => {
+      const res = await realHttp.get(url, ip, signal);
       fixture.http = { status: res.status, url, headers: Object.fromEntries(res.headers), body: await res.text() };
       return new Response(fixture.http.body, res);
     },

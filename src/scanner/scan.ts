@@ -12,7 +12,7 @@ import { detection } from "./weights";
 export type RecordType = "A" | "AAAA" | "MX" | "TXT" | "NS" | "CNAME";
 export type Dns = { resolve(name: string, type: RecordType): Promise<string[]> };
 export type Page = { status: number; url: string; headers: Record<string, string>; body: string };
-export type Http = { get(url: string, signal: AbortSignal): Promise<Response> };
+export type Http = { get(url: string, ip: string | undefined, signal: AbortSignal): Promise<Response> };
 export type Fixture = { dns: Record<string, string[]>; http: Page | null };
 
 export type Evidence = { source: "dns" | "header" | "html" | "asn"; detail: string };
@@ -37,7 +37,7 @@ export type ScanResult = {
 };
 
 const internal = new BlockList();
-for (const [net, bits] of [["0.0.0.0", 8], ["10.0.0.0", 8], ["127.0.0.0", 8], ["169.254.0.0", 16], ["172.16.0.0", 12], ["192.168.0.0", 16]] as const)
+for (const [net, bits] of [["0.0.0.0", 8], ["10.0.0.0", 8], ["100.64.0.0", 10], ["127.0.0.0", 8], ["169.254.0.0", 16], ["172.16.0.0", 12], ["192.168.0.0", 16]] as const)
   internal.addSubnet(net, bits, "ipv4");
 // ::/127 is exactly :: and ::1.
 for (const [net, bits] of [["::", 127], ["fc00::", 7], ["fe80::", 10]] as const)
@@ -79,7 +79,7 @@ export async function scanDomain(input: string, { dns, http, asn }: { dns: Dns; 
   const refused = { domain, scannedAt, status: "refused" as const, detections: [], score: null, rentedCompanies: [] };
   const ips = await addresses(dns, domain);
   if (ips.some(isPrivate)) return refused;
-  const page = await fetchPage(dns, http, `https://${domain}/`).then((p) => (p !== "refused" && p.status >= 400 ? null : p)).catch(() => null);
+  const page = await fetchPage(dns, http, `https://${domain}/`, ips[0]).then((p) => (p !== "refused" && p.status >= 400 ? null : p)).catch(() => null);
   if (page === "refused") return refused;
   const found = new Map<string, Detection>();
   const mail = (host: string) => provider(mailRules, bareHost(host), domain, "mail", "Own mail server");
@@ -115,16 +115,16 @@ export async function scanDomain(input: string, { dns, http, asn }: { dns: Dns; 
 const addresses = async (dns: Dns, host: string) => [...(await dns.resolve(host, "A")), ...(await dns.resolve(host, "AAAA"))];
 const isPrivate = (ip: string) => internal.check(ip, isIPv6(ip) ? "ipv6" : "ipv4");
 
-async function fetchPage(dns: Dns, http: Http, url: string): Promise<Page | "refused"> {
+async function fetchPage(dns: Dns, http: Http, url: string, ip: string | undefined): Promise<Page | "refused"> {
   const signal = AbortSignal.timeout(10_000);
-  let res = await http.get(url, signal);
+  let res = await http.get(url, ip, signal);
   const location = res.status >= 300 && res.status < 400 && res.headers.get("location");
   if (location) {
     url = new URL(location, url).href;
     const host = new URL(url).hostname.replace(/^\[|\]$/g, "");
     const ips = isIP(host) ? [host] : await addresses(dns, host);
     if (!ips.length || ips.some(isPrivate)) return "refused";
-    res = await http.get(url, signal);
+    res = await http.get(url, ips[0], signal);
   }
   const chunks: Uint8Array[] = [];
   let size = 0;
