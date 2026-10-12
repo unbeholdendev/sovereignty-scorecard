@@ -34,6 +34,7 @@ const sites = recentResults().map((r) => ({
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Unbeholden Check: how much of your website is rented?</title>
     <meta name="description" content="Type a domain to see which services it rents from third parties, with the evidence, and the open source software that could replace each one." />
+    {process.env.UMAMI_WEBSITE_ID && <script is:inline defer src="/u/script.js" data-website-id={process.env.UMAMI_WEBSITE_ID} />}
   </head>
   <body>
     <header class="bar"><a class="name" href="/">Unbeholden Check</a></header>

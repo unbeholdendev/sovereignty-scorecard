@@ -12,6 +12,7 @@ import { realDns } from "../adapters/dns";
 import { realHttp } from "../adapters/http";
 import { cardContent } from "../card";
 import { allowScan, allowSignup, isFresh, rescanAt } from "../limits";
+import { push } from "../ntfy";
 import type { Repo } from "../scanner/catalogue";
 import { type Detection, normalise, scanDomain } from "../scanner/scan";
 import github from "../github.json";
@@ -25,7 +26,9 @@ let signup = "";
 if (Astro.request.method === "POST") {
   if (!allowSignup(Astro.clientAddress)) return new Response("Too many sign-ups. Try again in a minute.", { status: 429 });
   const email = String((await Astro.request.formData()).get("email") ?? "").trim();
-  signup = saveSignup(email, domain, consent) === "invalid" ? "That is not a valid email address." : "Saved. Nothing is sent until monitoring launches.";
+  const saved = saveSignup(email, domain, consent);
+  if (saved === "saved") void push({ title: "New signup", message: `${email} for ${domain}`, tags: ["envelope"] });
+  signup = saved === "invalid" ? "That is not a valid email address." : "Saved. Nothing is sent until monitoring launches.";
 }
 const rescan = Astro.url.searchParams.has("rescan");
 let result = getResult(domain);
@@ -71,6 +74,7 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
     <meta property="og:description" content={description} />
     <meta property="og:image" content={new URL(`/${domain}/card.png`, Astro.site).href} />
     <meta name="twitter:card" content="summary_large_image" />
+    {process.env.UMAMI_WEBSITE_ID && <script is:inline defer src="/u/script.js" data-website-id={process.env.UMAMI_WEBSITE_ID} />}
   </head>
   <body>
     <header class="bar">
