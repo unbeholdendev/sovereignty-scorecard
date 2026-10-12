@@ -5,6 +5,8 @@ import "@fontsource/archivo/600.css";
 import "@fontsource/barlow-condensed/600.css";
 import "@fontsource/barlow-condensed/700.css";
 import "@fontsource/jetbrains-mono/400.css";
+import "../base.css";
+import Glyphs from "../Glyphs.astro";
 import { realAsn } from "../adapters/asn";
 import { realDns } from "../adapters/dns";
 import { realHttp } from "../adapters/http";
@@ -201,62 +203,11 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
       <span>To have this page removed, email <a href="mailto:removal@unbeholden.dev">removal@unbeholden.dev</a>.</span>
     </footer>
 
-    <svg width="0" height="0" class="defs" aria-hidden="true">
-      <symbol id="broken" viewBox="0 0 90 20">
-        <circle cx="5" cy="10" r="3.2" fill="var(--rent)" />
-        <path d="M8 10H36M36 4v12M50 4v12" stroke="var(--rent)" stroke-width="2" stroke-linecap="round" />
-        <path d="M54 10H80" stroke="var(--open)" stroke-width="2" stroke-linecap="round" />
-        <circle cx="84.5" cy="10" r="3.6" fill="none" stroke="var(--open)" stroke-width="1.6" />
-      </symbol>
-      <symbol id="open" viewBox="0 0 90 20">
-        <circle cx="5" cy="10" r="3.2" fill="var(--rent)" />
-        <path d="M8 10H36M36 4v12M50 4v12" stroke="var(--rent)" stroke-width="2" stroke-linecap="round" />
-        <path d="M54 10H80" stroke="var(--faint)" stroke-width="1.6" stroke-dasharray="2 4" stroke-linecap="round" />
-      </symbol>
-      <symbol id="whole" viewBox="0 0 90 20">
-        <circle cx="5" cy="10" r="3.2" fill="var(--open)" />
-        <path d="M8 10H80" stroke="var(--open)" stroke-width="2" stroke-linecap="round" />
-        <circle cx="84.5" cy="10" r="3.6" fill="none" stroke="var(--open)" stroke-width="1.6" />
-      </symbol>
-    </svg>
+    <Glyphs />
   </body>
 </html>
 
 <style is:global>
-  :root {
-    --ground: #fafaf8;
-    --ink: #17181b;
-    --muted: #5d5e63;
-    --faint: #b9b9bd;
-    --rule: rgba(23, 24, 27, 0.1);
-    --rent: #c2307f;
-    --open: #0a85a8;
-    --open-text: #077590;
-    --sans: "Archivo", system-ui, sans-serif;
-    --condensed: "Barlow Condensed", "Archivo", sans-serif;
-    --mono: "JetBrains Mono", ui-monospace, monospace;
-    --gutter: clamp(16px, 4vw, 56px);
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--ground); color: var(--ink); font: 400 16px/1.45 var(--sans); font-variant-numeric: tabular-nums; }
-  ::selection { background: color-mix(in srgb, var(--ink) 14%, transparent); }
-  a { color: inherit; text-underline-offset: 3px; text-decoration-color: var(--faint); }
-  a:hover { text-decoration-color: currentColor; }
-  :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-  .mono { font-family: var(--mono); font-size: 14px; }
-  .defs { position: absolute; }
-
-  input, button { font: inherit; color: inherit; }
-  input { height: 36px; border: 1px solid rgba(23, 24, 27, 0.22); border-radius: 4px 0 0 4px; background: #fff; padding: 0 12px; min-width: 0; }
-  button { height: 36px; padding: 0 18px; border: 0; border-radius: 0 4px 4px 0; background: var(--ink); color: var(--ground); font-weight: 500; cursor: pointer; }
-  button:disabled { background: var(--faint); cursor: not-allowed; }
-
-  .bar { display: flex; align-items: center; gap: 24px; min-height: 52px; padding: 8px var(--gutter); border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
-  .bar .name { font-weight: 600; text-decoration: none; }
-  .bar .when { font-size: 14px; color: var(--muted); }
-  .check { margin-left: auto; display: flex; }
-  .check input { width: 280px; }
-
   main { padding: 0 var(--gutter); }
   .sum { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; padding: 24px 0 18px; }
   h1 { margin: 0 0 8px; font: 600 clamp(32px, 4vw, 46px)/1 var(--condensed); text-wrap: balance; }
@@ -317,7 +268,6 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
   .signup p { margin: 8px 0 0; font-size: 14px; color: var(--muted); max-width: 65ch; }
   .signup .said { color: var(--ink); }
 
-  footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 40px; padding: 20px var(--gutter) 32px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--muted); }
 
   @media (max-width: 900px) {
     summary { grid-template-columns: 44px minmax(0, 1fr) auto; grid-template-areas: "no svc toggle" ". who who" ". link link" ". alt alt"; row-gap: 2px; padding: 10px 0; }

@@ -1,22 +1,161 @@
 ---
+import "@fontsource/archivo/400.css";
+import "@fontsource/archivo/500.css";
+import "@fontsource/archivo/600.css";
+import "@fontsource/barlow-condensed/600.css";
+import "@fontsource/barlow-condensed/700.css";
+import "../base.css";
+import Glyphs from "../Glyphs.astro";
+import { catalogue } from "../scanner/catalogue";
 import { normalise } from "../scanner/scan";
 import { recentResults } from "../store";
 
 const input = Astro.url.searchParams.get("domain");
 const domain = input && normalise(input);
 if (domain) return Astro.redirect(`/${domain}`);
-const recent = recentResults();
+
+const picks = ["Google Analytics", "Google Workspace", "Cloudflare", "HubSpot", "Algolia", "Mailchimp", "Auth0", "Typeform", "Intercom", "Hotjar", "Vercel", "Disqus"];
+const lanes = picks.flatMap((n) => catalogue.filter((t) => t.name === n));
+const projects = new Set(catalogue.flatMap((t) => t.alternatives.map((a) => a.name))).size;
+const icons = import.meta.glob<string>("../icons/*.png", { eager: true, query: "?url", import: "default" });
+const icon = (name: string) => icons[`../icons/${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`];
+
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+const sites = recentResults().map((r) => ({
+  domain: r.domain,
+  score: r.score,
+  rented: r.detections.filter((d) => d.kind === "rented").length,
+  companies: r.rentedCompanies.length,
+}));
 ---
 <html lang="en">
-  <head><meta charset="utf-8" /><title>Unbeholden Check</title></head>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Unbeholden Check: how much of your website is rented?</title>
+    <meta name="description" content="Type a domain to see which services it rents from third parties, with the evidence, and the open source software that could replace each one." />
+  </head>
   <body>
-    <h1>Unbeholden Check</h1>
-    <form method="get">
-      <input name="domain" placeholder="example.com" required />
-      <button>Check</button>
-    </form>
-    {input && <p>That is not a domain.</p>}
-    {recent.length > 0 && <h2>Recently scanned</h2>}
-    <ul>{recent.map((r) => <li><a href={`/${r.domain}`}>{r.domain}</a>: {r.score ?? "not enough data"}</li>)}</ul>
+    <header class="bar"><a class="name" href="/">Unbeholden Check</a></header>
+    <main>
+      <section class="hero">
+        <h1>How much of your website is rented?</h1>
+        <p>Type a domain. Check marks every third party it finds as owned or rented, shows the evidence, and names open source software that could replace each rented piece.</p>
+        <form class="go">
+          <input name="domain" placeholder="example.com" aria-label="Domain" autocomplete="url" spellcheck="false" required />
+          <button>Check</button>
+        </form>
+        {input && <p class="err">That is not a domain. Try one like example.com.</p>}
+      </section>
+
+      <ol class="legend">
+        <li>
+          <svg viewBox="0 0 90 20" aria-hidden="true">
+            <circle cx="5" cy="10" r="3.2" fill="var(--rent)" />
+            <path d="M8 10H36M36 4v12" stroke="var(--rent)" stroke-width="2" stroke-linecap="round" />
+            <g class="part"><path d="M50 4v12" stroke="var(--rent)" stroke-width="2" stroke-linecap="round" /><path d="M54 10H80" stroke="var(--open)" stroke-width="2" stroke-linecap="round" /><circle cx="84.5" cy="10" r="3.6" fill="none" stroke="var(--open)" stroke-width="1.6" /></g>
+          </svg>
+          <b>Rented</b>
+          <span>A company runs this for the site. Open source options are named beside it, each with a self-host and a managed path.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 90 20" aria-hidden="true"><use href="#open" /></svg>
+          <b>Rented, no option yet</b>
+          <span>We have not found open source software we would vouch for here. We say so rather than guess.</span>
+        </li>
+        <li>
+          <svg viewBox="0 0 90 20" aria-hidden="true"><use href="#whole" /></svg>
+          <b>Owned</b>
+          <span>This runs on open source software. The ownership score is the weighted share of services like this.</span>
+        </li>
+      </ol>
+
+      <section class="swaps">
+        <h2>Check knows {catalogue.length} rented tools and {projects} open source projects that replace them. A few:</h2>
+        <ul>
+          {lanes.map((t) => (
+            <li>
+              <span class="cat">{t.category}</span>
+              <span class="svc">{t.name}</span>
+              <svg width="90" height="20" aria-hidden="true"><use href="#broken" /></svg>
+              <span class="alt">{t.alternatives.map((a) => <span>{icon(a.name) && <img src={icon(a.name)} alt="" />}{a.name}</span>)}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {sites.length > 0 && <section class="sites">
+        <h2>Recently checked</h2>
+        <ul>
+          {sites.map((s) => (
+            <li>
+              <a href={`/${s.domain}`}>{s.domain}</a>
+              <span class="who">{s.rented ? <>rents <b>{plural(s.rented, "service", "services")}</b> from {plural(s.companies, "company", "companies")}</> : "rents nothing we could score"}</span>
+              <span class="sc">{s.score === null ? <small>not enough data</small> : <>{s.score} <small>/ 100 owned</small></>}</span>
+            </li>
+          ))}
+        </ul>
+      </section>}
+    </main>
+    <footer>
+      <span>Reads DNS and one plain fetch of the homepage. Tools loaded later by JavaScript may be missing.</span>
+      <span>No third-party requests on this site. By <a href="https://unbeholden.dev">Unbeholden</a>.</span>
+    </footer>
+    <Glyphs />
   </body>
 </html>
+
+<style>
+  main { padding: 0 var(--gutter); }
+  .hero { padding: 32px 0 28px; }
+  h1 { margin: 0; font: 600 clamp(40px, 5vw, 68px)/0.95 var(--condensed); text-wrap: balance; }
+  .hero p { max-width: 60ch; margin: 12px 0 0; color: var(--muted); }
+  .go { display: flex; max-width: 480px; margin-top: 20px; }
+  .go input, .go button { height: 48px; font-size: 17px; }
+  .go input { flex: 1; padding: 0 14px; }
+  .go button { padding: 0 24px; }
+  .err { margin: 8px 0 0; font-size: 14px; }
+
+  .legend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 40px; margin: 0; padding: 16px 0; list-style: none; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
+  .legend li { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 2px 16px; align-items: center; }
+  .legend svg { grid-row: 1 / 3; width: 100%; height: auto; overflow: visible; }
+  .legend b { font-weight: 600; }
+  .legend span { font-size: 14px; color: var(--muted); }
+  .part { animation: part 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; }
+  @keyframes part { from { transform: translateX(-12px); } }
+  @media (prefers-reduced-motion: reduce) { .part { animation: none; } }
+
+  h2 { margin: 0 0 6px; font-size: 16px; font-weight: 600; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  .swaps { margin-top: 36px; }
+  .swaps ul { columns: 2 560px; column-gap: 48px; }
+  .swaps li { display: grid; grid-template-columns: 76px minmax(0, 156px) 64px minmax(0, 1fr); align-items: center; min-height: 40px; border-top: 1px solid var(--rule); break-inside: avoid; }
+  .swaps svg { width: 52px; height: 12px; }
+  .cat { font-size: 13px; color: var(--muted); }
+  .svc { font-weight: 600; }
+  .alt { color: var(--open-text); font-size: 15px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .alt > span { margin-right: 12px; white-space: nowrap; }
+  .alt img { width: 16px; height: 16px; margin-right: 5px; vertical-align: -3px; }
+
+  .sites { margin-top: 36px; }
+  .sites ul { columns: 2 420px; column-gap: 48px; }
+  .sites li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; align-items: baseline; padding: 8px 0; border-top: 1px solid var(--rule); break-inside: avoid; }
+  .sites a { font-weight: 600; }
+  .who { font-size: 14px; color: var(--muted); }
+  .who b { color: var(--rent); font-weight: 600; }
+  .sc { min-width: 96px; text-align: right; font-weight: 600; }
+  .sc small { font-size: 14px; font-weight: 400; color: var(--muted); }
+
+  @media (max-width: 900px) {
+    .hero { padding-top: 24px; }
+    .legend { grid-template-columns: 1fr; gap: 12px; }
+    .legend li { grid-template-columns: 88px minmax(0, 1fr); }
+    .swaps li { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "svc cat" "alt alt"; padding: 6px 0; }
+    .cat { grid-area: cat; }
+    .svc { grid-area: svc; }
+    .swaps svg { display: none; }
+    .alt { grid-area: alt; white-space: normal; }
+    .sites li { grid-template-columns: minmax(0, 1fr) auto; row-gap: 2px; }
+    .sites .who { grid-row: 2; }
+  }
+</style>
