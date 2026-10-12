@@ -27,3 +27,5 @@ export type Repo = { licence: string; stars: number; release: string | null; arc
 const dir = join(root, "src/catalogue");
 
 export const catalogue = readdirSync(dir).map((file) => tool.parse(Bun.YAML.parse(readFileSync(join(dir, file), "utf8"))));
+
+export const defaults = z.record(z.string(), z.array(alternative).max(3)).parse(Bun.YAML.parse(readFileSync(join(root, "src/defaults.yaml"), "utf8")));

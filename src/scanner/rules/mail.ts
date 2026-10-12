@@ -3,6 +3,7 @@ export const mailRules = [
   { id: "microsoft-365", name: "Microsoft 365", company: "Microsoft", hosts: ["protection.outlook.com", "onmicrosoft.com", "mail.microsoft"] },
   { id: "proton", name: "Proton Mail", company: "Proton", hosts: ["protonmail.ch", "proton.me", "proton.ch"] },
   { id: "fastmail", name: "Fastmail", company: "Fastmail", hosts: ["messagingengine.com", "fmhosted.com"] },
+  { id: "cloudflare-email-routing", name: "Cloudflare Email Routing", company: "Cloudflare", hosts: ["mx.cloudflare.net"] },
   { id: "zoho", name: "Zoho Mail", company: "Zoho", hosts: ["zoho.com", "zoho.eu", "zoho.in", "zoho.com.au", "zohomail.com"], selector: "zmail" },
   { id: "sendgrid", name: "SendGrid", company: "Twilio", hosts: ["sendgrid.net"] },
   { id: "mailchimp", name: "Mailchimp", company: "Intuit", hosts: ["mcsv.net"] },

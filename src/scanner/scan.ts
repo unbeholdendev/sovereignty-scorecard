@@ -6,7 +6,7 @@ import { detectHosting } from "./hosting";
 import { dkimSelectors, mailRules } from "./rules/mail";
 import { nsRules } from "./rules/ns";
 import { verificationRules } from "./rules/verification";
-import { type Alternative, catalogue } from "./catalogue";
+import { type Alternative, catalogue, defaults } from "./catalogue";
 import { detection } from "./weights";
 
 export type RecordType = "A" | "AAAA" | "MX" | "TXT" | "NS" | "CNAME";
@@ -137,8 +137,9 @@ async function fetchPage(dns: Dns, http: Http, url: string): Promise<Page | "ref
 
 function attachCatalogue(d: Detection): Detection {
   const tool = catalogue.find((t) => t.matches.some((m) => m.toLowerCase() === d.id.toLowerCase()));
-  if (!tool) return d;
-  return { ...d, company: d.company ?? tool.company, alternatives: d.kind === "rented" ? tool.alternatives.map(({ licence, ...a }) => a) : [] };
+  const alternatives = tool?.alternatives ?? defaults[d.category];
+  if (!alternatives) return d;
+  return { ...d, company: d.company ?? tool?.company, alternatives: d.kind === "rented" ? alternatives.map(({ licence, ...a }) => a) : [] };
 }
 
 function score(detections: Detection[]) {

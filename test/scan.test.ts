@@ -74,6 +74,7 @@ test.each([
   ["example-com.mail.protection.outlook.com", "microsoft-365"],
   ["mail.protonmail.ch", "proton"],
   ["in1-smtp.messagingengine.com", "fastmail"],
+  ["route1.mx.cloudflare.net", "cloudflare-email-routing"],
   ["mx.zoho.eu", "zoho"],
   ["smtp.google.com", "google-workspace"],
 ])("MX %s is %s", async (host, id) => {
@@ -218,6 +219,7 @@ test.each([
   ["_spf.salesforce.com", "salesforce"],
   ["_spf.protonmail.ch", "proton"],
   ["spf.messagingengine.com", "fastmail"],
+  ["_spf.mx.cloudflare.net", "cloudflare-email-routing"],
   ["helpscoutemail.com", "help-scout"],
   ["spf-00123.pphosted.com", "proofpoint"],
   ["eu._netblocks.mimecast.com", "mimecast"],
@@ -393,7 +395,7 @@ test("captured fastmail.com attaches mail alternatives and is rented from one co
   expect(result.rentedCompanies).toEqual(["Fastmail"]);
 });
 
-test("owned and uncatalogued rented mail get no alternatives; companies are counted once each", async () => {
+test("owned mail gets no alternatives, uncatalogued rented mail gets the mail defaults; companies are counted once each", async () => {
   const result = await scanDomain(
     "example.com",
     mx("10 mail.example.com", "20 example-com.mail.protection.outlook.com", "30 mx1.mailhost.net", "40 mx2.mailhost.net"),
@@ -401,7 +403,7 @@ test("owned and uncatalogued rented mail get no alternatives; companies are coun
   expect(result.detections.map((d) => [d.id, d.alternatives.length])).toEqual([
     ["own-mail", 0],
     ["microsoft-365", 3],
-    ["other-mail:mailhost.net", 0],
+    ["other-mail:mailhost.net", 3],
   ]);
   expect(result.rentedCompanies).toEqual(["Microsoft", "mailhost.net"]);
 });
