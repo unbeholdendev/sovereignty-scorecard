@@ -1,7 +1,7 @@
 import { Window } from "happy-dom";
 import { getDomain } from "tldts";
-import categories from "simple-wappalyzer/src/categories.json";
-import technologies from "simple-wappalyzer/src/technologies.json";
+import categories from "../wappalyzer/categories.json";
+import technologies from "../wappalyzer/technologies.json";
 import wappalyzer from "wappalyzer-core";
 import type { Detection, Evidence, Page } from "./scan";
 import { detection, weightOf } from "./weights";

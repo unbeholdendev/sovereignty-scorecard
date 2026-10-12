@@ -1,7 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "astro/zod";
-import { parse } from "yaml";
 import { root } from "../root";
 
 const alternative = z.strictObject({
@@ -27,4 +26,4 @@ export type Repo = { licence: string; stars: number; release: string | null; arc
 
 const dir = join(root, "src/catalogue");
 
-export const catalogue = readdirSync(dir).map((file) => tool.parse(parse(readFileSync(join(dir, file), "utf8"))));
+export const catalogue = readdirSync(dir).map((file) => tool.parse(Bun.YAML.parse(readFileSync(join(dir, file), "utf8"))));
