@@ -1,7 +1,8 @@
 import { BlockList, isIP, isIPv6 } from "node:net";
+import { join } from "node:path";
 import { getDomain, getDomainWithoutSuffix } from "tldts";
+import { root } from "../root";
 import type { Asn } from "./asn";
-import { detectHomepage } from "./homepage";
 import { detectHosting } from "./hosting";
 import { dkimSelectors, mailRules } from "./rules/mail";
 import { nsRules } from "./rules/ns";
@@ -44,6 +45,40 @@ for (const [net, bits] of [["::", 127], ["fc00::", 7], ["fe80::", 10]] as const)
   internal.addSubnet(net, bits, "ipv6");
 
 const maxBody = 2 * 1024 * 1024;
+
+// Detection takes seconds of CPU on a large page, which would stall every other request on the main thread.
+type Waiting = { resolve(d: Detection[]): void; reject(e: Error): void };
+const waiting = new Map<number, Waiting>();
+let lastId = 0;
+let detector = startDetector();
+
+function startDetector() {
+  const worker = new Worker(join(root, "src/scanner/detect.worker.ts"));
+  worker.unref();
+  worker.onmessage = ({ data }) => {
+    const w = waiting.get(data.id);
+    waiting.delete(data.id);
+    if (data.error) w?.reject(new Error(data.error));
+    else w?.resolve(data.detections);
+  };
+  worker.onerror = (e) => restartDetector(new Error(`Detection failed: ${e.message}`));
+  return worker;
+}
+
+// Restarting fails every queued scan, but a stuck worker would hang them all anyway.
+function restartDetector(error: Error) {
+  detector.terminate();
+  for (const w of waiting.values()) w.reject(error);
+  waiting.clear();
+  detector = startDetector();
+}
+
+function detectHomepage(page: Page) {
+  const id = ++lastId;
+  detector.postMessage({ id, page });
+  const timer = setTimeout(() => waiting.has(id) && restartDetector(new Error("Detection timed out")), 60_000);
+  return new Promise<Detection[]>((resolve, reject) => waiting.set(id, { resolve, reject })).finally(() => clearTimeout(timer));
+}
 
 const isWithin = (host: string, domain: string) => host === domain || host.endsWith(`.${domain}`);
 

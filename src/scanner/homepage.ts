@@ -45,12 +45,14 @@ export async function detectHomepage(page: Page): Promise<Detection[]> {
       scriptSrc: [...doc.querySelectorAll("script[src], iframe[src]")].map((s) => new URL(s.getAttribute("src")!, page.url).href),
       scripts: [...doc.querySelectorAll("script:not([src])")].map((s) => s.textContent).join("\n"),
     });
+    const words = new Set(page.body.toLowerCase().match(/[\w-]+/g));
     for (const technology of wappalyzer.technologies)
       for (const [selector, [check]] of Object.entries<any>(technology.dom ?? {})) {
+        if (!mayMatch(selector, words)) continue;
         let elements: any[];
         try { elements = [...doc.querySelectorAll(selector)]; } catch { continue; }
+        if ("exists" in check && elements[0]) found.push({ technology, pattern: { type: "dom", value: elements[0].outerHTML.slice(0, 200) } });
         for (const el of elements) {
-          if ("exists" in check) found.push({ technology, pattern: { type: "dom", value: el.outerHTML.slice(0, 200) } });
           for (const [attr, p] of Object.entries<any>(check.attributes ?? {})) {
             const value = el.getAttribute(attr);
             if (value != null && p.regex.test(value)) found.push({ technology, pattern: { type: "dom", value } });
@@ -77,6 +79,20 @@ export async function detectHomepage(page: Page): Promise<Detection[]> {
   } finally {
     await window.happyDOM.close();
   }
+}
+
+// Querying all 1,500 selectors takes seconds on a large page, so skip any that needs a tag, id, class, attribute or value word the HTML lacks.
+function mayMatch(selector: string, words: Set<string>) {
+  if (selector.includes("\\")) return true;
+  return selector.toLowerCase().split(",").some((branch) => {
+    const plain = branch.replace(/:[\w-]+(\([^)]*\))?/g, "");
+    const bare = plain.replace(/\[\s*([\w-]+)[^\]]*\]/g, " [$1 ");
+    const names = [...bare.matchAll(/(?:^|[\s>+~#.[])([a-z_][\w-]*)/g)].map((m) => m[1]);
+    // A word at either end of a value may be part of a longer word in the page.
+    const inner = [...plain.matchAll(/=\s*(['"])(.+?)\1/g)].flatMap(([, , v]) =>
+      [...v.matchAll(/[\w-]+/g)].filter((m) => m.index > 0 && m.index + m[0].length < v.length).map((m) => m[0]));
+    return [...names, ...inner].every((w) => words.has(w));
+  });
 }
 
 function categoryOf(name: string, ids: number[]) {
