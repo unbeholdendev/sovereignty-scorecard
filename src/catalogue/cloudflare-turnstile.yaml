@@ -4,11 +4,11 @@ category: captcha
 company: Cloudflare
 openSource: false
 alternatives:
-  - name: ALTCHA
-    repo: https://github.com/altcha-org/altcha
-    selfHostUrl: https://altcha.org/docs/integration/widget/
-    managedUrl: https://altcha.org/docs/cloud/
   - name: Cap
     repo: https://github.com/tiagozip/cap
     licence: Apache-2.0
     selfHostUrl: https://capjs.js.org/guide/
+  - name: ALTCHA
+    repo: https://github.com/altcha-org/altcha
+    selfHostUrl: https://altcha.org/docs/integration/widget/
+    managedUrl: https://altcha.org/docs/cloud/

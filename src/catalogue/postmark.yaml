@@ -13,3 +13,6 @@ alternatives:
     selfHostUrl: https://stalw.art/docs/install/get-started
     articles:
       - https://unbeholden.dev/blog/self-hosting-email-with-stalwart
+  - name: Haraka
+    repo: https://github.com/haraka/Haraka
+    selfHostUrl: https://github.com/haraka/Haraka/blob/master/docs/Tutorial.md

@@ -10,3 +10,6 @@ alternatives:
   - name: Isso
     repo: https://github.com/isso-comments/isso
     selfHostUrl: https://isso-comments.de/docs/reference/installation/
+  - name: Waline
+    repo: https://github.com/walinejs/waline
+    selfHostUrl: https://waline.js.org/en/guide/get-started/

@@ -4,14 +4,12 @@ category: dns
 company: GoDaddy
 openSource: false
 alternatives:
+  - name: CoreDNS
+    repo: https://github.com/coredns/coredns
+    selfHostUrl: https://coredns.io/manual/toc/#installation
+  - name: Technitium DNS
+    repo: https://github.com/TechnitiumSoftware/DnsServer
+    selfHostUrl: https://technitium.com/dns/
   - name: PowerDNS
     repo: https://github.com/PowerDNS/pdns
     selfHostUrl: https://doc.powerdns.com/authoritative/installation.html
-  - name: Knot DNS
-    repo: https://github.com/CZ-NIC/knot
-    licence: GPL-2.0-or-later
-    selfHostUrl: https://www.knot-dns.cz/docs/latest/html/installation.html
-  - name: NSD
-    repo: https://github.com/NLnetLabs/nsd
-    licence: BSD-3-Clause
-    selfHostUrl: https://nsd.docs.nlnetlabs.nl/en/latest/installation.html

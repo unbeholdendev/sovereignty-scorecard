@@ -7,11 +7,10 @@ alternatives:
   - name: Keycloak
     repo: https://github.com/keycloak/keycloak
     selfHostUrl: https://www.keycloak.org/getting-started/getting-started-docker
-  - name: Zitadel
-    repo: https://github.com/zitadel/zitadel
-    selfHostUrl: https://zitadel.com/docs/self-hosting/deploy/overview
-    managedUrl: https://zitadel.com/pricing
-  - name: Ory Kratos
-    repo: https://github.com/ory/kratos
-    selfHostUrl: https://www.ory.sh/docs/kratos/install
-    managedUrl: https://www.ory.sh/pricing
+  - name: Better Auth
+    repo: https://github.com/better-auth/better-auth
+    selfHostUrl: https://better-auth.com/docs/installation
+  - name: authentik
+    repo: https://github.com/goauthentik/authentik
+    licence: MIT
+    selfHostUrl: https://docs.goauthentik.io/install-config/install/docker-compose/

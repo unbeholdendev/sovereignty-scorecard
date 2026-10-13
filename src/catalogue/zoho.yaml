@@ -4,6 +4,9 @@ category: mail
 company: Zoho
 openSource: false
 alternatives:
+  - name: docker-mailserver
+    repo: https://github.com/docker-mailserver/docker-mailserver
+    selfHostUrl: https://docker-mailserver.github.io/docker-mailserver/latest/usage/
   - name: Stalwart
     repo: https://github.com/stalwartlabs/stalwart
     licence: AGPL-3.0-only
@@ -14,6 +17,3 @@ alternatives:
     repo: https://github.com/mailcow/mailcow-dockerized
     selfHostUrl: https://docs.mailcow.email/getstarted/install/
     managedUrl: https://www.servercow.de
-  - name: Mox
-    repo: https://github.com/mjl-/mox
-    selfHostUrl: https://www.xmox.nl/install/

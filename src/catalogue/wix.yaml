@@ -12,3 +12,6 @@ alternatives:
     repo: https://github.com/WordPress/WordPress
     licence: GPL-2.0-or-later
     selfHostUrl: https://developer.wordpress.org/advanced-administration/before-install/howto-install/
+  - name: Grav
+    repo: https://github.com/getgrav/grav
+    selfHostUrl: https://learn.getgrav.org/17/basics/installation

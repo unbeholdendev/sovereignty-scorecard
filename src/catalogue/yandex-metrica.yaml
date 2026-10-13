@@ -4,15 +4,16 @@ category: analytics
 company: Yandex
 openSource: false
 alternatives:
-  - name: Plausible
-    repo: https://github.com/plausible/analytics
-    selfHostUrl: https://github.com/plausible/community-edition
-    managedUrl: https://plausible.io
+  - name: PostHog
+    repo: https://github.com/PostHog/posthog
+    licence: MIT
+    selfHostUrl: https://posthog.com/docs/self-host
+    managedUrl: https://posthog.com/pricing
   - name: Umami
     repo: https://github.com/umami-software/umami
     selfHostUrl: https://umami.is/docs/install
     managedUrl: https://cloud.umami.is
-  - name: Matomo
-    repo: https://github.com/matomo-org/matomo
-    selfHostUrl: https://matomo.org/faq/on-premise/installing-matomo/
-    managedUrl: https://matomo.org/matomo-cloud/
+  - name: Plausible
+    repo: https://github.com/plausible/analytics
+    selfHostUrl: https://github.com/plausible/community-edition
+    managedUrl: https://plausible.io

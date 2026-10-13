@@ -4,6 +4,11 @@ category: chat
 company: Zendesk
 openSource: false
 alternatives:
+  - name: Rocket.Chat
+    repo: https://github.com/RocketChat/Rocket.Chat
+    licence: MIT
+    selfHostUrl: https://docs.rocket.chat/docs/deployment-guide
+    managedUrl: https://www.rocket.chat/plans
   - name: Chatwoot
     repo: https://github.com/chatwoot/chatwoot
     licence: MIT

@@ -9,10 +9,9 @@ alternatives:
     licence: AGPL-3.0-only
     selfHostUrl: https://twenty.com/developers/section/self-hosting
     managedUrl: https://twenty.com/pricing
-  - name: EspoCRM
-    repo: https://github.com/espocrm/espocrm
-    selfHostUrl: https://docs.espocrm.com/administration/installation/
-    managedUrl: https://www.espocrm.com/pricing/
+  - name: Krayin
+    repo: https://github.com/krayin/laravel-crm
+    selfHostUrl: https://devdocs.krayincrm.com/2.0/introduction/docker.html
   - name: Mautic
     repo: https://github.com/mautic/mautic
     licence: GPL-3.0-or-later

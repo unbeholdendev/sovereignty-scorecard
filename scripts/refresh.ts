@@ -1,4 +1,4 @@
-import { catalogue, type Repo } from "../src/scanner/catalogue";
+import { catalogue, defaults, type Repo } from "../src/scanner/catalogue";
 
 type Fetch = (url: string) => Promise<Response>;
 
@@ -40,8 +40,16 @@ export async function refresh(repos: { repo: string; licence?: string }[], get: 
 if (import.meta.main) {
   const token = process.env.GITHUB_TOKEN;
   const auth = (url: string) => (token && url.startsWith("https://api.github.com/") ? { authorization: `Bearer ${token}` } : undefined);
-  const repos = [...new Map(catalogue.flatMap((t) => t.alternatives).map((a) => [a.repo, { repo: a.repo, licence: a.licence }])).values()].sort((a, b) => a.repo.localeCompare(b.repo));
-  const { data, failures } = await refresh(repos, (url) => fetch(url, { headers: auth(url) }));
+  const repos = [...new Map([...catalogue.flatMap((t) => t.alternatives), ...Object.values(defaults).flat()].map((a) => [a.repo, { repo: a.repo, licence: a.licence }])).values()].sort((a, b) => a.repo.localeCompare(b.repo));
+  const get = async (url: string): Promise<Response> => {
+    const res = await fetch(url, { headers: auth(url) });
+    if (res.ok || res.headers.get("x-ratelimit-remaining") !== "0") return res;
+    const reset = Number(res.headers.get("x-ratelimit-reset")) * 1000;
+    console.error(`Rate limited until ${new Date(reset).toISOString()}`);
+    await Bun.sleep(reset - Date.now() + 1000);
+    return get(url);
+  };
+  const { data, failures } = await refresh(repos, get);
   await Bun.write("src/github.json", JSON.stringify(data, null, 2) + "\n");
   for (const failure of failures) console.error(failure);
   if (failures.length) process.exit(1);

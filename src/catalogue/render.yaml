@@ -8,9 +8,11 @@ alternatives:
     repo: https://github.com/coollabsio/coolify
     selfHostUrl: https://coolify.io/docs/get-started/installation
     managedUrl: https://app.coolify.io
+  - name: Dokploy
+    repo: https://github.com/Dokploy/dokploy
+    licence: Apache-2.0
+    selfHostUrl: https://docs.dokploy.com/docs/core/installation
+    managedUrl: https://dokploy.com/#pricing
   - name: Dokku
     repo: https://github.com/dokku/dokku
     selfHostUrl: https://dokku.com/docs/getting-started/installation/
-  - name: Kamal
-    repo: https://github.com/basecamp/kamal
-    selfHostUrl: https://kamal-deploy.org/docs/installation/

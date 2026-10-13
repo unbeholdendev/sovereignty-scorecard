@@ -4,13 +4,13 @@ category: analytics
 company: Microsoft
 openSource: false
 alternatives:
-  - name: OpenReplay
-    repo: https://github.com/openreplay/openreplay
-    licence: AGPL-3.0-only
-    selfHostUrl: https://docs.openreplay.com/en/deployment/
-    managedUrl: https://openreplay.com/pricing
   - name: PostHog
     repo: https://github.com/PostHog/posthog
     licence: MIT
     selfHostUrl: https://posthog.com/docs/self-host
     managedUrl: https://posthog.com/pricing
+  - name: OpenReplay
+    repo: https://github.com/openreplay/openreplay
+    licence: AGPL-3.0-only
+    selfHostUrl: https://docs.openreplay.com/en/deployment/
+    managedUrl: https://openreplay.com/pricing

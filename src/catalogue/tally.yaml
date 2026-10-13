@@ -4,6 +4,11 @@ category: forms
 company: Tally
 openSource: false
 alternatives:
+  - name: Formbricks
+    repo: https://github.com/formbricks/formbricks
+    licence: AGPL-3.0-only
+    selfHostUrl: https://formbricks.com/docs/self-hosting/setup/one-click
+    managedUrl: https://formbricks.com/pricing
   - name: HeyForm
     repo: https://github.com/heyform/heyform
     selfHostUrl: https://docs.heyform.net/open-source/self-hosting
@@ -13,8 +18,3 @@ alternatives:
     licence: AGPL-3.0-only
     selfHostUrl: https://docs.opnform.com/deployment/docker
     managedUrl: https://opnform.com/pricing
-  - name: Formbricks
-    repo: https://github.com/formbricks/formbricks
-    licence: AGPL-3.0-only
-    selfHostUrl: https://formbricks.com/docs/self-hosting/setup/one-click
-    managedUrl: https://formbricks.com/pricing

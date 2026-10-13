@@ -7,10 +7,10 @@ alternatives:
   - name: SeaweedFS
     repo: https://github.com/seaweedfs/seaweedfs
     selfHostUrl: https://github.com/seaweedfs/seaweedfs/wiki/Getting-Started
-  - name: Coolify
-    repo: https://github.com/coollabsio/coolify
-    selfHostUrl: https://coolify.io/docs/get-started/installation
-    managedUrl: https://app.coolify.io
-  - name: Dokku
-    repo: https://github.com/dokku/dokku
-    selfHostUrl: https://dokku.com/docs/getting-started/installation/
+  - name: RustFS
+    repo: https://github.com/rustfs/rustfs
+    selfHostUrl: https://docs.rustfs.com/en/installation
+  - name: Ceph
+    repo: https://github.com/ceph/ceph
+    licence: LGPL-2.1-only
+    selfHostUrl: https://docs.ceph.com/en/latest/radosgw/

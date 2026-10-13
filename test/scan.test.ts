@@ -58,6 +58,7 @@ test("Google Workspace MX is rented mail with its records as evidence and catalo
         { source: "dns", detail: "MX 5 alt1.aspmx.l.google.com" },
       ],
       alternatives: [
+        { name: "docker-mailserver" },
         {
           name: "Stalwart",
           repo: "https://github.com/stalwartlabs/stalwart",
@@ -65,7 +66,6 @@ test("Google Workspace MX is rented mail with its records as evidence and catalo
           articles: ["https://unbeholden.dev/blog/self-hosting-email-with-stalwart"],
         },
         { name: "Mailcow", managedUrl: "https://www.servercow.de" },
-        { name: "Mox" },
       ],
     },
   ]);
@@ -252,7 +252,7 @@ test("an SPF include with macros is skipped", async () => {
 
 test("a catalogue entry matches a rule id regardless of case", async () => {
   const [detection] = (await scanDomain("example.com", spf("v=spf1 include:mail.zendesk.com ~all"))).detections;
-  expect(detection.alternatives.map((a) => a.name)).toEqual(["Chatwoot", "Zammad"]);
+  expect(detection.alternatives.map((a) => a.name)).toEqual(["Rocket.Chat", "Chatwoot", "Zammad"]);
 });
 
 test("Microsoft 365 DKIM under mail.microsoft is Microsoft 365", async () => {

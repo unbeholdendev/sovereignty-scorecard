@@ -4,15 +4,14 @@ category: hosting
 company: Shopify
 openSource: false
 alternatives:
-  - name: WooCommerce
-    repo: https://github.com/woocommerce/woocommerce
-    licence: GPL-2.0-or-later
-    selfHostUrl: https://woocommerce.com/document/installing-uninstalling-woocommerce/
   - name: Medusa
     repo: https://github.com/medusajs/medusa
     licence: MIT
     selfHostUrl: https://docs.medusajs.com/learn/installation
     managedUrl: https://medusajs.com/pricing/
+  - name: Bagisto
+    repo: https://github.com/bagisto/bagisto
+    selfHostUrl: https://devdocs.bagisto.com/getting-started/installation.html
   - name: Saleor
     repo: https://github.com/saleor/saleor
     selfHostUrl: https://docs.saleor.io/setup/docker-compose
