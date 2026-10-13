@@ -1,0 +1,12 @@
+.astro
+.claude
+.devcontainer
+.forgejo
+.git
+.impeccable
+dist
+docs
+node_modules
+test
+*.db
+asn.sqlite*
