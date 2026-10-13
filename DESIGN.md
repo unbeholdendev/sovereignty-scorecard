@@ -20,9 +20,9 @@ typography:
     lineHeight: 1
   display-landing:
     fontFamily: "Barlow Condensed, Archivo, sans-serif"
-    fontSize: "clamp(40px, 5vw, 68px)"
+    fontSize: "clamp(44px, 8vw, 112px)"
     fontWeight: 600
-    lineHeight: 0.95
+    lineHeight: 0.9
   lane-number:
     fontFamily: "Barlow Condensed, Archivo, sans-serif"
     fontSize: "26px"
@@ -65,6 +65,12 @@ typography:
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.45
+  column-head:
+    fontFamily: "Archivo, system-ui, sans-serif"
+    fontSize: "12px"
+    fontWeight: 500
+    lineHeight: 1
+    letterSpacing: "0.08em"
   evidence:
     fontFamily: "JetBrains Mono, ui-monospace, monospace"
     fontSize: "14px"
@@ -194,7 +200,7 @@ Under 900px each lane stacks: number, service and toggle on the first line; comp
 Flat. No shadows, no glow, no tonal layers. Depth is only structural: hairline rules separate lanes, and an open Details block is bounded by a hairline border on the same ground.
 
 ### Named Rules
-**The Hairline Only Rule.** Separation is a 1px hairline (rgba(23, 24, 27, 0.1)). No fills, no cards, no shadows, no tinted panels.
+**The Hairline Only Rule.** Separation is a 1px hairline (rgba(23, 24, 27, 0.1)). No fills, no cards, no shadows, no tinted panels. One exception: an ink rule under the lane column headers, where a printed schedule would rule off its header.
 
 ## Shapes
 
@@ -217,17 +223,21 @@ Square by default. The only radius is 4px on form controls; an input and its but
 - **Links:** inherit colour, underline offset 3px in faint grey, underline turns to the text colour on hover.
 
 ### Lane Row (signature)
-One `details` element per service, hairline below. Summary line: muted lane number, service name, "rented from **Company**" in label size, the 90x20 link glyph, alternatives in Open Cyan Text 500, and a "Details" / "Hide" toggle with a small CSS chevron that darkens on hover. Owned lanes and lanes without an option show their right-hand text muted at label size. The not-scored group is a final lane with no number and no glyph, opening to a two-column list.
+One `details` element per service, hairline below. Above the first lane, column headers (No., Service, Provider, Link, Open source option) in column-head, uppercase, muted, on the lane grid, with an ink rule below; hidden under 900px. Summary line: a 9px jack socket (hollow at rest, filled when open; hidden under 900px) and muted lane number, service name, "rented from **Company**" in label size, the 90x20 link glyph, alternatives in Open Cyan Text 500, and a "Details" / "Hide" toggle with a small CSS chevron that darkens on hover. Owned lanes and lanes without an option show their right-hand text muted at label size. The not-scored group is a final lane with no number and no glyph, opening to a two-column list.
 
 ### Link Glyph (signature)
 Inline SVG symbols, 90x20, stroke 2, round caps.
 - **Broken:** magenta dot and segment ending in a bar, a gap, then a cyan segment ending in an open cyan ring. Rented, with open source options.
 - **Open-ended:** the magenta half, then a dashed faint-grey half with no ring. Rented, no option listed yet.
 - **Whole:** one unbroken cyan line from dot to ring. Owned.
+- **Reconnect:** hovering or focusing a lane slides the broken glyph's right half 17 units left and fades its second magenta bar, so the link closes. Driven by `--join` and `--gap` on the summary, since `<use>` content cannot be targeted by selectors. Instant under reduced motion.
 A key block above the lanes has one line per glyph actually used, in the Rented / Owned words: "Rented. Open source options are named next to it.", "Rented. No open source option listed yet.", "Owned. Runs on open source."
 
 ### Score Frame
 Under the score, one muted label-size line says what it measures. The score stays the headline number.
+
+### Split Meter
+A full-width 6px bar under the summary row: Open Cyan for the score, Rented Magenta for the rest, 3px apart. A 0 or 100 shows one colour. Grows in from the left on load, still under reduced motion. Hidden from screen readers; the score says it.
 
 ### Biggest Change
 After the lanes, one body sentence names the rented service whose swap moves the score most (its share of its category's weight) and its first alternative in Open Cyan Text, with self-host and managed links. No card, no fill.
@@ -236,7 +246,7 @@ After the lanes, one body sentence names the rented service whose swap moves the
 1200x630 PNG in the same world: paper ground, ink, Inter 400 and 700 (satori needs TTF). Domain, score with "/ 100 owned", "rented from N companies" with N in magenta, then up to three lanes split by hairlines, each with its link glyph and first alternative in Open Cyan Text. No score shows "Not enough data", never a symbol.
 
 ### Landing Exceptions
-The landing headline uses display-landing, since it stands alone with no score beside it. The landing input and button are 48px tall with a visible label above.
+The landing headline uses display-landing, since it stands alone with no score beside it; "rented" in it is Rented Magenta. Beside the form, the broken glyph drawn 480px wide parts on load (hidden under 900px). The landing input and button are 48px tall with a visible label above.
 
 ### Details Block
 A hairline-bounded block on the ground (no fill), 14px 20px padding, indented to the service column. Two columns: Evidence (mono list plus "category, weight N") and Open source options (a borderless table: name in Open Cyan Text 500 linked, then licence, stars, release, and Managed / article links in muted label size).

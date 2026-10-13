@@ -40,7 +40,8 @@ const sites = recentResults().map((r) => ({
     <header class="bar"><a class="name" href="/">Unbeholden Check</a></header>
     <main>
       <section class="hero">
-        <h1>How much of your website is rented?</h1>
+        <h1>How much of your website is <em>rented</em>?</h1>
+        <svg class="big" viewBox="0 0 90 20" aria-hidden="true"><use href="#broken" /></svg>
         <p>Type a domain. Check marks every third party it finds as owned or rented, shows the evidence, and names open source software that could replace each rented piece.</p>
         <label for="domain">Domain</label>
         <form class="go" onsubmit="this.querySelector('button').textContent='Checking…'">
@@ -110,8 +111,11 @@ const sites = recentResults().map((r) => ({
 
 <style>
   main { padding: 0 var(--gutter); }
-  .hero { padding: 32px 0 28px; }
-  h1 { margin: 0; font: 600 clamp(40px, 5vw, 68px)/0.95 var(--condensed); text-wrap: balance; }
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 480px); column-gap: 48px; padding: 40px 0 28px; }
+  .hero > * { grid-column: 1; }
+  h1 { grid-column: 1 / -1; margin: 0; font: 600 clamp(44px, 8vw, 112px)/0.9 var(--condensed); text-wrap: balance; }
+  h1 em { font-style: normal; color: var(--rent); }
+  .hero .big { grid-column: 2; grid-row: 2 / 7; align-self: center; width: 100%; height: auto; overflow: visible; }
   .hero p { max-width: 60ch; margin: 12px 0 0; color: var(--muted); }
   .hero label { display: block; margin: 20px 0 8px; font-weight: 500; }
   .go { display: flex; max-width: 480px; }
@@ -127,7 +131,10 @@ const sites = recentResults().map((r) => ({
   .legend span { font-size: 14px; color: var(--muted); }
   .part { animation: part 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; }
   @keyframes part { from { transform: translateX(-12px); } }
-  @media (prefers-reduced-motion: reduce) { .part { animation: none; } }
+  @property --join { syntax: "<length>"; inherits: true; initial-value: 0px; }
+  .big { animation: join 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; }
+  @keyframes join { from { --join: -12px; } }
+  @media (prefers-reduced-motion: reduce) { .part, .big { animation: none; } }
 
   h2 { margin: 0 0 6px; font-size: 16px; font-weight: 600; }
   ul { margin: 0; padding: 0; list-style: none; }
@@ -152,7 +159,8 @@ const sites = recentResults().map((r) => ({
   .sc small { font-size: 14px; font-weight: 400; color: var(--muted); }
 
   @media (max-width: 900px) {
-    .hero { padding-top: 24px; }
+    .hero { display: block; padding-top: 24px; }
+    .hero .big { display: none; }
     .legend { grid-template-columns: 1fr; gap: 12px; }
     .legend li { grid-template-columns: 88px minmax(0, 1fr); }
     .swaps li { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "svc cat" "alt alt"; padding: 6px 0; }

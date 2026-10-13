@@ -127,6 +127,13 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
         )}
       </section>
 
+      {result.score !== null && (
+        <div class="meter" aria-hidden="true">
+          {result.score > 0 && <i style={`flex: ${result.score}`} />}
+          {result.score < 100 && <i class="rent" style={`flex: ${100 - result.score}`} />}
+        </div>
+      )}
+
       {lanes.length > 0 && (
         <div class="keys">
           {Object.entries(keys).filter(([g]) => lanes.some((d) => glyph(d) === g)).map(([g, text]) => (
@@ -136,6 +143,10 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
             </p>
           ))}
         </div>
+      )}
+
+      {lanes.length > 0 && (
+        <div class="cols" aria-hidden="true"><span>No.</span><span>Service</span><span>Provider</span><span>Link</span><span>Open source option</span></div>
       )}
 
       <ul class="lanes">
@@ -258,16 +269,25 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
   .score small { font-size: 20px; font-weight: 500; color: var(--muted); }
   .score .frame { margin-top: 8px; font: 400 14px/1.45 var(--sans); letter-spacing: 0; color: var(--muted); }
 
-  .keys { padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+  .meter { display: flex; gap: 3px; height: 6px; margin-bottom: 18px; }
+  .meter i { background: var(--open); transform-origin: left; animation: grow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .meter .rent { background: var(--rent); animation-delay: 0.1s; }
+  @keyframes grow { from { transform: scaleX(0); } }
+  @media (prefers-reduced-motion: reduce) { .meter i { animation: none; } :root { --join-t: 0s; } }
   .key { display: flex; align-items: center; gap: 12px; margin: 0; font-size: 14px; color: var(--muted); }
   .key + .key { margin-top: 4px; }
 
   .lanes { margin: 0; padding: 0; list-style: none; }
   .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   details { border-bottom: 1px solid var(--rule); }
-  summary { list-style: none; display: grid; grid-template-columns: 64px minmax(0, 230px) minmax(0, 250px) 112px minmax(0, 1fr) 84px; align-items: center; min-height: 51px; cursor: pointer; }
+  .cols, summary { display: grid; grid-template-columns: 64px minmax(0, 230px) minmax(0, 250px) 112px minmax(0, 1fr) 84px; }
+  .cols { padding: 22px 0 7px; border-bottom: 1px solid var(--ink); font: 500 12px/1 var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  summary { list-style: none; align-items: center; min-height: 51px; cursor: pointer; }
+  summary:hover, summary:focus-visible { --join: -17px; --gap: 0; }
   summary::-webkit-details-marker { display: none; }
-  .no { font: 700 26px/1 var(--condensed); color: var(--muted); }
+  .no { display: flex; align-items: center; gap: 9px; font: 700 26px/1 var(--condensed); color: var(--muted); }
+  .no:not(:empty)::before { content: ""; flex: none; width: 9px; height: 9px; border: 1.5px solid currentColor; border-radius: 50%; }
+  details[open] > summary .no::before { background: currentColor; }
   details[open] > summary .no { color: var(--ink); }
   .svc { font-weight: 600; }
   .who { font-size: 14px; color: var(--muted); }
@@ -319,7 +339,10 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
 
   @media (max-width: 900px) {
     summary { grid-template-columns: 44px minmax(0, 1fr) auto; grid-template-areas: "no svc toggle" ". who who" ". link link" ". alt alt"; row-gap: 2px; padding: 10px 0; }
+    .cols { display: none; }
+    .keys { padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
     .no { grid-area: no; font-size: 22px; }
+    .no::before { display: none; }
     .svc { grid-area: svc; }
     .who { grid-area: who; }
     summary svg { grid-area: link; margin: 4px 0; }
