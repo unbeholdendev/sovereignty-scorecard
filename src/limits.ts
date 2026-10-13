@@ -18,5 +18,9 @@ export function rateLimiter(limit: number, windowMs: number) {
   };
 }
 
-export const allowScan = rateLimiter(10, 60_000);
-export const allowSignup = rateLimiter(10, 60_000);
+const scansPerIp = rateLimiter(10, 60_000);
+const signupsPerIp = rateLimiter(10, 60_000);
+const scans = rateLimiter(60, 60_000);
+const signups = rateLimiter(30, 60_000);
+export const allowScan = (ip: string) => scansPerIp(ip) && scans("all");
+export const allowSignup = (ip: string) => signupsPerIp(ip) && signups("all");
