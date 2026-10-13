@@ -14,38 +14,50 @@ import { cardContent } from "../card";
 import { allowScan, allowSignup, isFresh, rescanAt } from "../limits";
 import { push } from "../ntfy";
 import type { Repo } from "../scanner/catalogue";
-import { type Detection, normalise, scanDomain } from "../scanner/scan";
+import { type Detection, normalise, scanDomain, share } from "../scanner/scan";
 import github from "../github.json";
 import { getResult, isHidden, saveResult, saveSignup } from "../store";
 
-const domain = normalise(Astro.params.domain!);
-if (!domain) return new Response("Not a domain", { status: 404 });
-if (domain !== Astro.params.domain) return Astro.redirect(`/${domain}`);
+const domain = normalise(Astro.params.domain!) ?? "";
+if (domain && domain !== Astro.params.domain) return Astro.redirect(`/${domain}`);
 const consent = "Nothing is sent yet. Emails start once monitoring launches, and the first one asks you to confirm. To remove your address, email removal@unbeholden.dev.";
-let signup = "";
-if (Astro.request.method === "POST") {
-  if (!allowSignup(Astro.clientAddress)) return new Response("Too many sign-ups. Try again in a minute.", { status: 429 });
-  const email = String((await Astro.request.formData()).get("email") ?? "").trim();
-  const saved = saveSignup(email, domain, consent);
-  if (saved === "saved") void push({ title: "New signup", message: `${email} for ${domain}`, tags: ["envelope"] });
-  signup = saved === "invalid" ? "That is not a valid email address." : "Saved. Nothing is sent until monitoring launches.";
+let fail: [string, string] | undefined;
+if (!domain) {
+  Astro.response.status = 404;
+  fail = [`${Astro.params.domain} is not a domain.`, "Check the spelling. A domain looks like example.com."];
+}
+const said = Astro.url.searchParams.get("signup");
+let signup = said === "saved" ? "Saved. Nothing is sent until monitoring launches." : said === "invalid" ? "That is not a valid email address." : "";
+if (domain && Astro.request.method === "POST") {
+  if (allowSignup(Astro.clientAddress)) {
+    const email = String((await Astro.request.formData()).get("email") ?? "").trim();
+    const saved = saveSignup(email, domain, consent);
+    if (saved === "saved") void push({ title: "New signup", message: `${email} for ${domain}`, tags: ["envelope"] });
+    return Astro.redirect(`/${domain}?signup=${saved === "invalid" ? "invalid" : "saved"}`, 303);
+  }
+  Astro.response.status = 429;
+  signup = "Too many sign-ups. Try again in a minute.";
 }
 const rescan = Astro.url.searchParams.has("rescan");
-let result = getResult(domain);
-if (!result || !isFresh(result.scannedAt) || (rescan && Date.now() >= rescanAt(result.scannedAt))) {
-  if (!allowScan(Astro.clientAddress)) return new Response("Too many scans. Try again in a minute.", { status: 429 });
-  result = await scanDomain(domain, { dns: realDns, http: realHttp, asn: realAsn });
-  saveResult(result);
+let result = fail ? undefined : getResult(domain);
+if (!fail && (!result || !isFresh(result.scannedAt) || (rescan && Date.now() >= rescanAt(result.scannedAt)))) {
+  if (allowScan(Astro.clientAddress)) {
+    result = await scanDomain(domain, { dns: realDns, http: realHttp, asn: realAsn });
+    saveResult(result);
+  } else {
+    Astro.response.status = 429;
+    fail = ["Too many scans right now.", "Try again in a minute."];
+  }
 }
-if (rescan) return Astro.redirect(`/${domain}`);
-const rescanOpens = rescanAt(result.scannedAt);
+if (rescan && !fail) return Astro.redirect(`/${domain}`);
+result ??= { domain, scannedAt: new Date().toISOString(), status: "ok", detections: [], score: null, rentedCompanies: [] };
+const wait = Math.ceil((rescanAt(result.scannedAt) - Date.now()) / 60_000);
 const meta = github as Record<string, Repo>;
 const icons = import.meta.glob<string>("../icons/*.png", { eager: true, query: "?url", import: "default" });
 const icon = (name: string) => icons[`../icons/${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`];
 const card = cardContent(result);
 const score = result.score ?? "not enough data";
 const title = `${domain} ownership score: ${score}`;
-const description = [card.line, ...card.top].join(". ");
 
 const byWeight = (a: Detection, b: Detection) => b.weight - a.weight || a.name.localeCompare(b.name);
 const rented = result.detections.filter((d) => d.kind === "rented").sort(byWeight);
@@ -54,12 +66,17 @@ const unscored = result.detections.filter((d) => d.kind === "unscored");
 const lanes = [...rented, ...owned];
 const companies = result.rentedCompanies.length;
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-const headline =
-  result.status === "refused" ? `${domain} points at a private address, so it was not scanned.`
-  : result.status === "unreachable" && !lanes.length ? `${domain} could not be reached.`
-  : result.score === null ? `Not enough data to score ${domain}.`
-  : rented.length ? `${domain} rents ${plural(rented.length, "service", "services")} from ${plural(companies, "company", "companies")}.`
-  : `${domain} owns every service we could score.`;
+const [headline, why] = fail
+  ?? (result.status === "refused" ? [`${domain} points at a private address, so it was not scanned.`, "Private addresses belong to internal networks, so nothing was fetched. If this looks wrong, check the domain's A and AAAA records."]
+  : result.status === "unreachable" && !lanes.length ? [`${domain} could not be reached.`, "DNS did not answer or the homepage did not respond. Check the spelling, or rescan later."]
+  : result.score === null ? [`Not enough data to score ${domain}.`, "The scan looked for mail, DNS and hosting providers and known homepage tools, and found none it could score."]
+  : rented.length ? [`${domain} rents ${plural(rented.length, "service", "services")} from ${plural(companies, "company", "companies")}.`]
+  : [`${domain} owns every service we could score.`]);
+const glyph = (d: Detection) => (d.kind === "owned" ? "whole" : d.alternatives.length ? "broken" : "open");
+const keys = { broken: "Rented. Open source options are named next to it.", open: "Rented. No open source option listed yet.", whole: "Owned. Runs on open source." };
+const caps: Record<string, string> = { cdn: "CDN", crm: "CRM", dns: "DNS", cms: "CMS", "ab-testing": "A/B testing" };
+const category = (c: string) => caps[c] ?? c[0].toUpperCase() + c.slice(1).replace("-", " ");
+const swap = rented.filter((d) => d.alternatives.length).sort((a, b) => share(b, lanes) - share(a, lanes))[0];
 const when = new Date(result.scannedAt).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" });
 const stars = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
 const lane = (i: number) => String(i + 1).padStart(2, "0");
@@ -68,20 +85,24 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    {isHidden(domain) && <meta name="robots" content="noindex" />}
-    <title>{domain} | Unbeholden Check</title>
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL(`/${domain}/card.png`, Astro.site).href} />
-    <meta name="twitter:card" content="summary_large_image" />
+    {(fail || isHidden(domain)) && <meta name="robots" content="noindex" />}
+    <title>{domain || "Not a domain"} | Unbeholden Check</title>
+    {!fail && (
+      <>
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={card.description} />
+        <meta property="og:image" content={new URL(`/${domain}/card.png`, Astro.site).href} />
+        <meta name="twitter:card" content="summary_large_image" />
+      </>
+    )}
     {process.env.UMAMI_WEBSITE_ID && <script is:inline defer src="/u/script.js" data-website-id={process.env.UMAMI_WEBSITE_ID} />}
   </head>
   <body>
     <header class="bar">
       <a class="name" href="/">Unbeholden Check</a>
-      <span class="when">Scanned {when} UTC</span>
-      <form action="/" class="check">
-        <input name="domain" value={domain} aria-label="Domain" required />
+      {!fail && <span class="when">Scanned {when} UTC</span>}
+      <form action="/" class="check" onsubmit="this.querySelector('button').textContent='Checking…'">
+        <input name="domain" placeholder="another-domain.com" aria-label="Domain" required />
         <button>Check</button>
       </form>
     </header>
@@ -90,6 +111,7 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
       <section class="sum">
         <div>
           <h1>{headline}</h1>
+          {why && <p class="counts">{why}</p>}
           {result.detections.length > 0 && (
             <p class="counts">
               <b>{result.detections.length}</b> found: <b class="rent">{rented.length}</b> rented, <b>{owned.length}</b> owned, <b>{unscored.length}</b> not scored.
@@ -97,109 +119,122 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
           )}
           {result.status === "unreachable" && lanes.length > 0 && <p class="counts">The homepage could not be fetched, so only DNS was read.</p>}
         </div>
-        {result.score !== null && <p class="score">{result.score} <small>/ 100 owned</small></p>}
+        {result.score !== null && (
+          <div class="score">
+            <p>{result.score} <small>/ 100 owned</small></p>
+            <p class="frame">Weighted share of scored services that run on open source. Mail, DNS and hosting count most.</p>
+          </div>
+        )}
       </section>
 
-      {rented.length > 0 && (
-        <p class="key">
-          <svg width="90" height="20" aria-hidden="true"><use href="#broken" /></svg>
-          Broken link: you rent this. Open source options are named next to it.
-        </p>
-      )}
-      {owned.length > 0 && (
-        <p class="key">
-          <svg width="90" height="20" aria-hidden="true"><use href="#whole" /></svg>
-          Whole link: this runs on open source.
-        </p>
+      {lanes.length > 0 && (
+        <div class="keys">
+          {Object.entries(keys).filter(([g]) => lanes.some((d) => glyph(d) === g)).map(([g, text]) => (
+            <p class="key">
+              <svg width="90" height="20" aria-hidden="true"><use href={`#${g}`} /></svg>
+              {text}
+            </p>
+          ))}
+        </div>
       )}
 
-      <div class="lanes">
+      <ul class="lanes">
         {lanes.map((d, i) => (
-          <details class={d.kind}>
-            <summary>
-              <span class="no">{lane(i)}</span>
-              <span class="svc">{d.name}</span>
-              <span class="who">
-                {d.kind === "owned" ? "owned" : d.company ? <>rented from <b>{d.company}</b></> : "rented, company not listed"}
-              </span>
-              <svg width="90" height="20" aria-hidden="true">
-                <use href={d.kind === "owned" ? "#whole" : d.alternatives.length ? "#broken" : "#open"} />
-              </svg>
-              <span class={d.alternatives.length || d.kind === "owned" ? "alt" : "alt none"}>
-                {d.kind === "owned" ? "Runs on open source" : d.alternatives.length ? d.alternatives.map((a) => <span>{icon(a.name) && <img src={icon(a.name)} alt="" />}{a.name}</span>) : "No open source option listed yet"}
-              </span>
-              <span class="toggle"></span>
-            </summary>
-            <div class="more">
-              <div>
-                <h2>Evidence</h2>
-                <ul class="mono">{d.evidence.map((e) => <li>{e.source}: {e.detail}</li>)}</ul>
-                <p class="weight">{d.category}, weight {d.weight}</p>
-              </div>
-              {d.alternatives.length > 0 && (
+          <li>
+            <details class={d.kind}>
+              <summary>
+                <span class="no">{lane(i)}</span>
+                <span class="svc">{d.name}</span>
+                <span class="who">
+                  {d.kind === "owned" ? "owned" : d.company ? <>rented from <b>{d.company}</b></> : "rented, company not listed"}
+                </span>
+                <svg width="90" height="20" aria-hidden="true"><use href={`#${glyph(d)}`} /></svg>
+                <span class={d.alternatives.length || d.kind === "owned" ? "alt" : "alt none"}>
+                  {d.kind === "owned" ? "Runs on open source" : d.alternatives.length ? d.alternatives.map((a, j) => <>{j > 0 && <span class="vh">, </span>}<a href={a.selfHostUrl}>{icon(a.name) && <img src={icon(a.name)} alt="" />}{a.name}</a></>) : "No open source option listed yet"}
+                </span>
+                <span class="toggle" aria-hidden="true"></span>
+              </summary>
+              <div class="more">
                 <div>
-                  <h2>Open source options</h2>
-                  <table>
-                    {d.alternatives.map((a) => (
-                      <tr>
-                        <th scope="row"><a href={a.selfHostUrl}>{icon(a.name) && <img src={icon(a.name)} alt="" />}{a.name}</a></th>
-                        {meta[a.repo] ? (
-                          <>
-                            <td>{meta[a.repo].licence}</td>
-                            <td>{stars(meta[a.repo].stars)} stars</td>
-                            <td>{meta[a.repo].release ? `release ${meta[a.repo].release}` : "no release"}</td>
-                          </>
-                        ) : <td colspan="3"></td>}
-                        <td>
-                          {a.managedUrl && <a href={a.managedUrl}>Managed</a>}
-                          {a.articles.map((url) => <a href={url}>Unbeholden article</a>)}
-                        </td>
-                      </tr>
-                    ))}
-                  </table>
+                  <h2>Evidence</h2>
+                  <ul class="mono">{d.evidence.map((e) => <li>{e.source}: {e.detail}</li>)}</ul>
+                  <p class="weight">{category(d.category)}, counts {d.weight}x</p>
                 </div>
-              )}
-            </div>
-          </details>
+                {d.alternatives.length > 0 && (
+                  <div>
+                    <h2>Open source options</h2>
+                    <table>
+                      {d.alternatives.map((a) => (
+                        <tr>
+                          <th scope="row"><a href={a.selfHostUrl}>{icon(a.name) && <img src={icon(a.name)} alt="" />}{a.name}</a></th>
+                          {meta[a.repo] ? (
+                            <>
+                              <td>{meta[a.repo].licence}</td>
+                              <td>{stars(meta[a.repo].stars)} stars</td>
+                              <td>{meta[a.repo].release ? `release ${meta[a.repo].release}` : "no release"}</td>
+                            </>
+                          ) : <td colspan="3"></td>}
+                          <td>
+                            {a.managedUrl && <a href={a.managedUrl}>Managed</a>}
+                            {a.articles.map((url) => <a href={url}>Unbeholden article</a>)}
+                          </td>
+                        </tr>
+                      ))}
+                    </table>
+                  </div>
+                )}
+              </div>
+            </details>
+          </li>
         ))}
 
         {unscored.length > 0 && (
-          <details class="rest">
-            <summary>
-              <span class="no"></span>
-              <span class="svc">{unscored.length} more found, not scored</span>
-              <span class="who">libraries, frameworks and accounts</span>
-              <span class="toggle"></span>
-            </summary>
-            <ul class="unscored">
-              {unscored.map((d) => (
-                <li>
-                  <span>{d.category === "account" ? `Account with ${d.name}` : d.name}</span>
-                  <span class="mono">{d.evidence[0]?.detail}</span>
-                </li>
-              ))}
-            </ul>
-          </details>
+          <li>
+            <details class="rest">
+              <summary>
+                <span class="no"></span>
+                <span class="svc">{unscored.length} more found, not scored</span>
+                <span class="who">libraries, frameworks and accounts</span>
+                <span class="toggle" aria-hidden="true"></span>
+              </summary>
+              <ul class="unscored">
+                {unscored.map((d) => (
+                  <li>
+                    <span>{d.category === "account" ? `Account with ${d.name}` : d.name}</span>
+                    <span class="mono">{d.evidence[0]?.detail}</span>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          </li>
         )}
-      </div>
+      </ul>
 
-      {result.status !== "refused" && <p class="note">This scan reads DNS and one plain fetch of the homepage. Tools loaded later by JavaScript may be missing.</p>}
+      {!fail && result.status !== "refused" && <p class="note">This scan reads DNS and one plain fetch of the homepage. Tools loaded later by JavaScript may be missing.</p>}
 
-      <section class="after">
-        <form class="rescan">
-          <button name="rescan" disabled={Date.now() < rescanOpens}>Rescan</button>
-          {Date.now() < rescanOpens && <span>Available at {new Date(rescanOpens).toISOString().slice(11, 16)} UTC</span>}
-        </form>
-        {result.status !== "refused" && <form method="post" class="signup">
-          <label for="email">Email me when this score changes</label>
-          <div>
-            <input id="email" name="email" type="email" required />
-            <button>Save</button>
-          </div>
-          <p>{consent}</p>
-          {signup && <p class="said">{signup}</p>}
-        </form>}
-      </section>
+      {swap && (
+        <p class="next">
+          Biggest change: replace {swap.name} with <b>{swap.alternatives[0].name}</b>, <a href={swap.alternatives[0].selfHostUrl}>self-hosted</a>{swap.alternatives[0].managedUrl && <> or <a href={swap.alternatives[0].managedUrl}>managed</a></>}.
+        </p>
+      )}
+
+      {!fail && result.status !== "refused" && (
+        <section class="after">
+          <form class="rescan">
+            <button name="rescan" disabled={wait > 0} aria-describedby="rescan-note">Rescan</button>
+            {wait > 0 && <span id="rescan-note">Available in {plural(wait, "minute", "minutes")}</span>}
+          </form>
+          <form method="post" class="signup">
+            <label for="email">Email me when this score changes</label>
+            <div>
+              <input id="email" name="email" type="email" required />
+              <button>Save</button>
+            </div>
+            <p>{consent}</p>
+            {signup && <p class="said" role="status">{signup}</p>}
+          </form>
+        </section>
+      )}
     </main>
 
     <footer>
@@ -213,16 +248,22 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
 
 <style is:global>
   main { padding: 0 var(--gutter); }
-  .sum { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; padding: 24px 0 18px; }
+  .sum { display: flex; align-items: last baseline; justify-content: space-between; gap: 32px; padding: 24px 0 18px; }
   h1 { margin: 0 0 8px; font: 600 clamp(32px, 4vw, 46px)/1 var(--condensed); text-wrap: balance; }
   .counts { margin: 0; color: var(--muted); }
   .counts b { color: var(--ink); font-weight: 600; }
   .counts .rent { color: var(--rent); }
-  .score { margin: 0; flex: none; text-align: right; font: 600 44px/1 var(--sans); letter-spacing: -0.01em; }
+  .score { flex: none; max-width: 300px; text-align: right; }
+  .score p { margin: 0; font: 600 44px/1 var(--sans); letter-spacing: -0.01em; }
   .score small { font-size: 20px; font-weight: 500; color: var(--muted); }
+  .score .frame { margin-top: 8px; font: 400 14px/1.45 var(--sans); letter-spacing: 0; color: var(--muted); }
 
-  .key { display: flex; align-items: center; gap: 12px; margin: 0; padding-bottom: 12px; font-size: 14px; color: var(--muted); border-bottom: 1px solid var(--rule); }
+  .keys { padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+  .key { display: flex; align-items: center; gap: 12px; margin: 0; font-size: 14px; color: var(--muted); }
+  .key + .key { margin-top: 4px; }
 
+  .lanes { margin: 0; padding: 0; list-style: none; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   details { border-bottom: 1px solid var(--rule); }
   summary { list-style: none; display: grid; grid-template-columns: 64px minmax(0, 230px) minmax(0, 250px) 112px minmax(0, 1fr) 84px; align-items: center; min-height: 51px; cursor: pointer; }
   summary::-webkit-details-marker { display: none; }
@@ -232,7 +273,7 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
   .who { font-size: 14px; color: var(--muted); }
   .who b { color: var(--ink); font-weight: 500; }
   .alt { color: var(--open-text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .alt > span { margin-right: 16px; white-space: nowrap; }
+  .alt > a { margin-right: 16px; white-space: nowrap; }
   .alt img, .more th img { width: 20px; height: 20px; margin-right: 6px; vertical-align: -4px; }
   .alt.none { color: var(--muted); font-weight: 400; font-size: 14px; }
   .owned .alt { color: var(--muted); font-weight: 400; font-size: 14px; }
@@ -259,11 +300,14 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
   .unscored { margin: 0 0 12px 64px; padding: 0; list-style: none; columns: 2 420px; column-gap: 40px; }
   .unscored li { display: flex; gap: 12px; padding: 4px 0; break-inside: avoid; }
   .unscored li span:first-child { flex: none; }
-  .unscored .mono { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .unscored .mono { color: var(--muted); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   .note { margin: 12px 0 0; font-size: 14px; color: var(--muted); }
+  .next { margin: 40px 0 0; }
+  .next b { color: var(--open-text); font-weight: 500; }
 
   .after { display: grid; grid-template-columns: auto minmax(0, 560px); gap: 48px; align-items: start; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--rule); }
+  .next + .after { margin-top: 12px; }
   .rescan { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--muted); }
   .rescan button { border-radius: 4px; }
   .signup label { display: block; font-weight: 500; margin-bottom: 8px; }
@@ -288,7 +332,6 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
     .more th { width: 100%; }
     .more th, .more td { padding: 0; white-space: normal; }
     .bar { gap: 4px 12px; }
-    .bar .when { font-size: 12px; }
     .unscored { margin-left: 0; }
     .sum { flex-direction: column; align-items: flex-start; gap: 12px; }
     .score { text-align: left; }

@@ -13,14 +13,16 @@ export function saveResult(result: ScanResult) {
   db.query("INSERT OR REPLACE INTO results VALUES (?, ?, ?)").run(result.domain, result.scannedAt, JSON.stringify(result));
 }
 
-db.run("CREATE TABLE IF NOT EXISTS cards (domain TEXT PRIMARY KEY, scanned_at TEXT NOT NULL, png BLOB NOT NULL)");
+// Cards cached before the light redesign.
+db.run("DROP TABLE IF EXISTS cards");
+db.run("CREATE TABLE IF NOT EXISTS share_cards (domain TEXT PRIMARY KEY, scanned_at TEXT NOT NULL, png BLOB NOT NULL)");
 
 export function getCard(result: ScanResult) {
-  return db.query<{ png: Uint8Array }, [string, string]>("SELECT png FROM cards WHERE domain = ? AND scanned_at = ?").get(result.domain, result.scannedAt)?.png;
+  return db.query<{ png: Uint8Array }, [string, string]>("SELECT png FROM share_cards WHERE domain = ? AND scanned_at = ?").get(result.domain, result.scannedAt)?.png;
 }
 
 export function saveCard(result: ScanResult, png: Uint8Array) {
-  db.query("INSERT OR REPLACE INTO cards VALUES (?, ?, ?)").run(result.domain, result.scannedAt, png);
+  db.query("INSERT OR REPLACE INTO share_cards VALUES (?, ?, ?)").run(result.domain, result.scannedAt, png);
 }
 
 db.run("CREATE TABLE IF NOT EXISTS signups (email TEXT NOT NULL, domain TEXT NOT NULL, consented_at TEXT NOT NULL, consent_text TEXT NOT NULL, PRIMARY KEY (email, domain))");

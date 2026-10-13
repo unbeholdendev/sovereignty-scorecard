@@ -18,9 +18,19 @@ typography:
     fontSize: "clamp(32px, 4vw, 46px)"
     fontWeight: 600
     lineHeight: 1
+  display-landing:
+    fontFamily: "Barlow Condensed, Archivo, sans-serif"
+    fontSize: "clamp(40px, 5vw, 68px)"
+    fontWeight: 600
+    lineHeight: 0.95
   lane-number:
     fontFamily: "Barlow Condensed, Archivo, sans-serif"
     fontSize: "26px"
+    fontWeight: 700
+    lineHeight: 1
+  lane-number-compact:
+    fontFamily: "Barlow Condensed, Archivo, sans-serif"
+    fontSize: "22px"
     fontWeight: 700
     lineHeight: 1
   score:
@@ -29,6 +39,16 @@ typography:
     fontWeight: 600
     lineHeight: 1
     letterSpacing: "-0.01em"
+  score-unit:
+    fontFamily: "Archivo, system-ui, sans-serif"
+    fontSize: "20px"
+    fontWeight: 500
+    lineHeight: 1
+  card:
+    fontFamily: "Inter"
+    fontSize: "30px"
+    fontWeight: 400
+    lineHeight: 1.2
   title:
     fontFamily: "Archivo, system-ui, sans-serif"
     fontSize: "16px"
@@ -204,7 +224,19 @@ Inline SVG symbols, 90x20, stroke 2, round caps.
 - **Broken:** magenta dot and segment ending in a bar, a gap, then a cyan segment ending in an open cyan ring. Rented, with open source options.
 - **Open-ended:** the magenta half, then a dashed faint-grey half with no ring. Rented, no option listed yet.
 - **Whole:** one unbroken cyan line from dot to ring. Owned.
-A key line above the lanes explains each glyph in use, in plain words.
+A key block above the lanes has one line per glyph actually used, in the Rented / Owned words: "Rented. Open source options are named next to it.", "Rented. No open source option listed yet.", "Owned. Runs on open source."
+
+### Score Frame
+Under the score, one muted label-size line says what it measures. The score stays the headline number.
+
+### Biggest Change
+After the lanes, one body sentence names the rented service whose swap moves the score most (its share of its category's weight) and its first alternative in Open Cyan Text, with self-host and managed links. No card, no fill.
+
+### Share Card
+1200x630 PNG in the same world: paper ground, ink, Inter 400 and 700 (satori needs TTF). Domain, score with "/ 100 owned", "rented from N companies" with N in magenta, then up to three lanes split by hairlines, each with its link glyph and first alternative in Open Cyan Text. No score shows "Not enough data", never a symbol.
+
+### Landing Exceptions
+The landing headline uses display-landing, since it stands alone with no score beside it. The landing input and button are 48px tall with a visible label above.
 
 ### Details Block
 A hairline-bounded block on the ground (no fill), 14px 20px padding, indented to the service column. Two columns: Evidence (mono list plus "category, weight N") and Open source options (a borderless table: name in Open Cyan Text 500 linked, then licence, stars, release, and Managed / article links in muted label size).

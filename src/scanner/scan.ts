@@ -178,11 +178,12 @@ function attachCatalogue(d: Detection): Detection {
   return { ...d, company: d.company ?? tool?.company, alternatives: d.kind === "rented" ? alternatives.map(({ licence, ...a }) => a) : [] };
 }
 
+// A category's weight is shared by its providers, so five mail senders count no more than one.
+export const share = (d: Detection, scored: Detection[]) => d.weight / scored.filter((e) => e.category === d.category).length;
+
 function score(detections: Detection[]) {
   const scored = detections.filter((d) => d.kind !== "unscored");
-  // A category's weight is shared by its providers, so five mail senders count no more than one.
-  const share = (d: Detection) => d.weight / scored.filter((e) => e.category === d.category).length;
-  const sum = (kinds: string[]) => scored.filter((d) => kinds.includes(d.kind)).reduce((n, d) => n + share(d), 0);
+  const sum = (kinds: string[]) => scored.filter((d) => kinds.includes(d.kind)).reduce((n, d) => n + share(d, scored), 0);
   const total = sum(["owned", "rented"]);
   const rented = detections.filter((d) => d.kind === "rented" && d.company).map((d) => d.company!);
   return { score: total ? Math.round((sum(["owned"]) / total) * 100) : null, rentedCompanies: [...new Set(rented)] };

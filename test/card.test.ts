@@ -20,21 +20,23 @@ test("top three are the heaviest rented items, ties broken by name, each with it
     rented("Google Fonts", 1),
     { ...rented("Stalwart", 3), kind: "owned" },
   ], 40));
-  expect(card.top).toEqual(["Vercel → Coolify", "Google Analytics → Plausible", "Google Fonts"]);
-  expect(card.score).toBe("40");
+  expect(card.top.map(({ name, alternative }) => [name, alternative])).toEqual([["Vercel", "Coolify"], ["Google Analytics", "Plausible"], ["Google Fonts", null]]);
+  expect(card.description).toBe("Rented from 4 companies. Vercel, open source option Coolify. Google Analytics, open source option Plausible. Google Fonts");
+  expect(card.score).toBe(40);
+  expect(card.rented).toBe(4);
   expect(card.line).toBe("Rented from 4 companies");
 });
 
 test("not enough data shows that instead of a score", () => {
   const card = cardContent({ ...result([], null), status: "unreachable" });
-  expect(card.score).toBe("?");
+  expect(card.score).toBeNull();
   expect(card.line).toBe("Not enough data to score this site");
   expect(card.top).toEqual([]);
 });
 
 test("nothing rented says so instead of an empty list", () => {
   const card = cardContent(result([{ ...rented("Stalwart", 3), kind: "owned" }], 100));
-  expect(card.score).toBe("100");
+  expect(card.score).toBe(100);
   expect(card.line).toBe("Nothing rented detected");
 });
 
