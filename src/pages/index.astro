@@ -34,6 +34,11 @@ const sites = recentResults().map((r) => ({
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Unbeholden Check: how much of your website is rented?</title>
     <meta name="description" content="Type a domain to see which services it rents from third parties, with the evidence, and the open source software that could replace each one." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content="How much of your website is rented?" />
+    <meta property="og:description" content="Type a domain to see which services it rents from third parties, and the open source software that could replace each one." />
+    <meta property="og:image" content={new URL("/og.png", Astro.site).href} />
+    <meta name="twitter:card" content="summary_large_image" />
     {process.env.UMAMI_WEBSITE_ID && <script is:inline defer src="/u/script.js" data-website-id={process.env.UMAMI_WEBSITE_ID} />}
   </head>
   <body>

@@ -87,6 +87,7 @@ const lane = (i: number) => String(i + 1).padStart(2, "0");
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {(fail || isHidden(domain)) && <meta name="robots" content="noindex" />}
     <title>{domain || "Not a domain"} | Unbeholden Check</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     {!fail && (
       <>
         <meta property="og:title" content={title} />
