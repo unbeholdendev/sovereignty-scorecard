@@ -22,7 +22,16 @@ test.each([
   ["AAAA", "::1"],
   ["AAAA", "fe80::1"],
   ["AAAA", "fd00::1"],
+  ["AAAA", "::"],
   ["AAAA", "::ffff:10.0.0.1"],
+  ["AAAA", "::ffff:7f00:1"],
+  ["AAAA", "::a00:1"],
+  ["AAAA", "64:ff9b::a00:1"],
+  ["AAAA", "64:ff9b::127.0.0.1"],
+  ["AAAA", "64:ff9b:1::5db8:d70e"],
+  ["AAAA", "2002:a00:1::1"],
+  ["AAAA", "2002:a9fe:a9fe::"],
+  ["AAAA", "2001:0:4136:e378:8000:63bf:f5ff:fffe"],
 ])("%s %s is refused without fetching", async (type, ip) => {
   const adapters = fake({ dns: { [`${type} example.com`]: [ip] }, http: page });
   const result = await scanDomain("example.com", adapters);
@@ -35,6 +44,14 @@ test("a public address is fetched", async () => {
   expect((await scanDomain("example.com", adapters)).status).toBe("ok");
   expect(adapters.httpCalls).toEqual(["https://example.com/"]);
 });
+
+test.each(["2606:4700::1", "::ffff:5db8:d70e", "64:ff9b::5db8:d70e", "2002:5db8:d70e::1", "2001:0:4136:e378:8000:63bf:a247:28f1"])(
+  "AAAA %s is fetched",
+  async (ip) => {
+    const adapters = fake({ dns: { "AAAA example.com": [ip] }, http: page });
+    expect((await scanDomain("example.com", adapters)).status).toBe("ok");
+  },
+);
 
 test("a failed fetch is unreachable", async () => {
   const result = await scanDomain("example.com", fake({ dns: {}, http: null }));
@@ -600,7 +617,7 @@ test("a redirect to a private address is refused without fetching it", async () 
   expect(adapters.httpCalls).toEqual(["https://example.com/"]);
 });
 
-for (const target of ["http://127.0.0.1/", "http://169.254.169.254/latest/meta-data/", "http://[::1]/", "http://localhost/"])
+for (const target of ["http://127.0.0.1/", "http://169.254.169.254/latest/meta-data/", "http://[::1]/", "http://localhost/", "http://[64:ff9b::7f00:1]/", "http://[2002:a9fe:a9fe::]/"])
   test(`a redirect to ${target} is refused without fetching it`, async () => {
     const adapters = serve({ "https://example.com/": redirect(target) });
     const result = await scanDomain("example.com", adapters);

@@ -40,9 +40,30 @@ export type ScanResult = {
 const internal = new BlockList();
 for (const [net, bits] of [["0.0.0.0", 8], ["10.0.0.0", 8], ["100.64.0.0", 10], ["127.0.0.0", 8], ["169.254.0.0", 16], ["172.16.0.0", 12], ["192.168.0.0", 16]] as const)
   internal.addSubnet(net, bits, "ipv4");
-// ::/127 is exactly :: and ::1.
-for (const [net, bits] of [["::", 127], ["fc00::", 7], ["fe80::", 10]] as const)
+// 64:ff9b:1::/48 is local-use NAT64, whose IPv4 position depends on a prefix length only its operator knows.
+for (const [net, bits] of [["64:ff9b:1::", 48], ["fc00::", 7], ["fe80::", 10]] as const)
   internal.addSubnet(net, bits, "ipv6");
+
+function words(ip: string) {
+  const quad = ip.match(/(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+  if (quad) {
+    const [a, b, c, d] = quad.slice(1).map(Number);
+    ip = `${ip.slice(0, quad.index)}${((a << 8) | b).toString(16)}:${((c << 8) | d).toString(16)}`;
+  }
+  const [head, tail] = ip.split("::").map((part) => (part ? part.split(":").map((w) => parseInt(w, 16)) : []));
+  return tail ? [...head, ...Array(8 - head.length - tail.length).fill(0), ...tail] : head;
+}
+
+function embeddedIPv4(ip: string) {
+  const w = words(ip);
+  const quad = (hi: number, lo: number) => `${hi >> 8}.${hi & 255}.${lo >> 8}.${lo & 255}`;
+  const zero = (from: number, to: number) => w.slice(from, to).every((x) => x === 0);
+  if (zero(0, 5) && (w[5] === 0 || w[5] === 0xffff)) return quad(w[6], w[7]);
+  if (w[0] === 0x64 && w[1] === 0xff9b && zero(2, 6)) return quad(w[6], w[7]);
+  if (w[0] === 0x2002) return quad(w[1], w[2]);
+  // Teredo stores the client's address inverted.
+  if (w[0] === 0x2001 && w[1] === 0) return quad(w[6] ^ 0xffff, w[7] ^ 0xffff);
+}
 
 const maxBody = 2 * 1024 * 1024;
 
@@ -148,7 +169,11 @@ export async function scanDomain(input: string, { dns, http, asn }: { dns: Dns; 
 }
 
 const addresses = async (dns: Dns, host: string) => [...(await dns.resolve(host, "A")), ...(await dns.resolve(host, "AAAA"))];
-const isPrivate = (ip: string) => internal.check(ip, isIPv6(ip) ? "ipv6" : "ipv4");
+function isPrivate(ip: string) {
+  if (!isIPv6(ip)) return internal.check(ip, "ipv4");
+  const v4 = embeddedIPv4(ip);
+  return internal.check(ip, "ipv6") || (v4 !== undefined && internal.check(v4, "ipv4"));
+}
 
 async function fetchPage(dns: Dns, http: Http, url: string, ip: string | undefined): Promise<Page | "refused"> {
   const signal = AbortSignal.timeout(10_000);
